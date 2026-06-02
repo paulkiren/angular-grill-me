@@ -1,53 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Question, EvaluationResult } from '../models/interview.models';
+import { Question, EvaluationResult, RubricMatcher } from '../models/interview.models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EvaluationService {
-
-  // Dynamic regex map for offline scoring to make evaluation surprisingly accurate
-  private readonly rubricMatchers: Record<string, { regex: RegExp; term: string; label: string }[]> = {
-    'rx-1': [
-      { regex: /initial\s*value|start\s*value/i, term: 'initial value', label: 'Mentioned BehaviorSubject\'s requirement for an initial value.' },
-      { regex: /last\s*value|current\s*value/i, term: 'last value', label: 'Explained how BehaviorSubject stores and provides the current/last value.' },
-      { regex: /late\s*subscriber|new\s*subscriber|future\s*subscriber/i, term: 'late subscriber', label: 'Explained the impact on late subscribers.' },
-      { regex: /replay|emit/i, term: 'replay', label: 'Described emission or replay behavior.' }
-    ],
-    'rx-2': [
-      { regex: /cancel|abort|unsubscribe\s*previous/i, term: 'cancel', label: 'Correctly noted switchMap\'s cancellation behavior.' },
-      { regex: /active\s*inner|inner\s*observable|inner\s*stream/i, term: 'active inner', label: 'Referred to active inner observable management.' },
-      { regex: /order|sequence|queue/i, term: 'order', label: 'Addressed ordering/sequencing (key for concatMap).' },
-      { regex: /sequential|one\s*by\s*one/i, term: 'sequential', label: 'Highlighted sequential execution of concatMap.' },
-      { regex: /parallel|concur/i, term: 'parallel', label: 'Highlighted parallel execution of mergeMap.' }
-    ],
-    'sig-1': [
-      { regex: /fine-grained|fine\s*grain/i, term: 'fine-grained', label: 'Discussed fine-grained reactivity of Signals.' },
-      { regex: /synchronous|sync/i, term: 'synchronous', label: 'Correctly identified Signals as synchronous.' },
-      { regex: /derived\s*state|computed/i, term: 'derived state', label: 'Referred to computed or derived state optimization.' },
-      { regex: /asynchronous|async/i, term: 'asynchronous', label: 'Noted that RxJS remains optimal for asynchronous streams.' },
-      { regex: /stream|event/i, term: 'streams', label: 'Differentiated between state variables and event streams.' }
-    ],
-    'sig-2': [
-      { regex: /read-only|read\s*only/i, term: 'read-only', label: 'Identified computed() as creating read-only signals.' },
-      { regex: /side-effect|side\s*effect|effect/i, term: 'side-effect', label: 'Identified effect() as the place for side-effects.' },
-      { regex: /derive|calculation/i, term: 'derive', label: 'Delineated derived calculations from side-effects.' },
-      { regex: /write\s*signal|set\s*signal/i, term: 'write signal', label: 'Noted that side-effects should avoid writing directly to signals.' }
-    ],
-    'cd-1': [
-      { regex: /input\s*reference|input\s*change/i, term: 'input references', label: 'Explained OnPush checking input reference changes.' },
-      { regex: /explicit|manual/i, term: 'explicit trigger', label: 'Discussed explicit change detection triggering.' },
-      { regex: /markForCheck|detectChanges/i, term: 'markForCheck', label: 'Referenced markForCheck() or ChangeDetectorRef.' },
-      { regex: /sub-tree|branch/i, term: 'sub-tree', label: 'Described skipping entire sub-trees or component branches.' },
-      { regex: /immutable|reference/i, term: 'immutable', label: 'Linked OnPush benefits to immutability and references.' }
-    ],
-    'di-1': [
-      { regex: /context|injection\s*context/i, term: 'context', label: 'Explained how inject() operates in injection contexts.' },
-      { regex: /inheritance|super/i, term: 'inheritance', label: 'Noted simplifying class inheritance and avoiding super().' },
-      { regex: /type\s*safety|type\s*infer/i, term: 'type safety', label: 'Highlighted type safety and type inference.' },
-      { regex: /functional|function/i, term: 'functional', label: 'Noted accessibility in functional route guards or functions.' }
-    ]
-  };
 
   /**
    * Main entry point to evaluate candidate answers
@@ -75,24 +32,42 @@ export class EvaluationService {
       }
     }
 
-    // Fallback: Local Expert evaluation engine
+    // Fallback: Local dynamic expert evaluation engine
     return this.evaluateOffline(question, candidateAnswer);
   }
 
   /**
-   * Offline evaluation using keyword / regex matching with specific rubrics
+   * Offline evaluation using dynamically loaded question-specific rubrics
    */
   private evaluateOffline(question: Question, answer: string): EvaluationResult {
-    const matchers = this.rubricMatchers[question.id] || [];
+    // Read the question's own rubric matchers
+    const matchers: RubricMatcher[] = [];
+    
+    if (question.rubricMatchers && question.rubricMatchers.length > 0) {
+      matchers.push(...question.rubricMatchers);
+    } else {
+      // MASTERPIECE FALLBACK: Generate matches dynamically from the static rubrics array
+      // if no explicit regex matchers are provided. Highly future-proof!
+      question.rubrics.forEach(term => {
+        const escaped = term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        matchers.push({
+          pattern: escaped,
+          term,
+          label: `Mentioned essential concept: '${term}'`
+        });
+      });
+    }
+
     const matchedItems: string[] = [];
     const missedItems: string[] = [];
     const strengths: string[] = [];
     const weaknesses: string[] = [];
     const suggestions: string[] = [];
 
-    // Analyze rubrics matching
+    // Analyze rubrics matching dynamically
     matchers.forEach(m => {
-      if (m.regex.test(answer)) {
+      const regex = new RegExp(m.pattern, 'i');
+      if (regex.test(answer)) {
         matchedItems.push(m.term);
         strengths.push(m.label);
       } else {

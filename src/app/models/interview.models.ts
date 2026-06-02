@@ -1,3 +1,9 @@
+export interface RubricMatcher {
+  pattern: string;       // Regex pattern string
+  term: string;          // Key term (e.g. 'initial value')
+  label: string;         // Descriptive evaluation label
+}
+
 export interface Question {
   id: string;
   topic: string;
@@ -7,6 +13,7 @@ export interface Question {
   timeLimit: number; // in seconds
   rubrics: string[]; // essential keywords / concepts
   sampleAnswer: string;
+  rubricMatchers?: RubricMatcher[]; // Embedded regex rubrics for dynamic evaluations
   options?: string[]; // Optional: for micro-quizzes
   correctOptionIndex?: number; // Optional: for micro-quizzes
 }
