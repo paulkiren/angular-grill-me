@@ -155,6 +155,26 @@ export const quizQuestionsData: Question[] = [
       { pattern: 'immutable|reference', term: 'immutable', label: 'Promotes immutable data patterns' }
     ]
   },
+  {
+    id: 'cd-2',
+    topic: 'change-detection',
+    title: 'OnPush and Immutable Input References',
+    difficulty: 'Senior',
+    questionType: 'open-ended',
+    tags: ['change-detection', 'performance', 'immutable'],
+    questionText: 'Describe a situation where OnPush change detection can fail to update the view and how you would fix it.',
+    answerPlaceholder: 'Describe the root cause, reference change requirements, and the practical fix in Angular.',
+    rubrics: ['immutable', 'markForCheck', 'input reference', 'event', 'change detection'],
+    sampleAnswer: 'OnPush can fail when a component receives an object input whose internal properties change without the object reference changing. The fix is to update the input with a new object reference, use immutable state updates, or call markForCheck() after the change. Ensure data flows through reference-safe updates or use signals/computed values for derived UI state.',
+    timeLimit: 90,
+    rubricMatchers: [
+      { pattern: 'immutable|immutability', term: 'immutable', label: 'Use immutable object/reference updates' },
+      { pattern: 'markForCheck|detectChanges', term: 'markForCheck', label: 'Use markForCheck() or manual change detection' },
+      { pattern: 'input\\s*reference|reference\\s*change', term: 'input reference', label: 'Input reference changes trigger OnPush' },
+      { pattern: 'event|zone|angular zone', term: 'event', label: 'Event/zone-driven updates or manual detection' },
+      { pattern: 'change\\s*detection', term: 'change detection', label: 'Understanding how OnPush evaluates component trees' }
+    ]
+  },
   // DI Topic
   {
     id: 'di-1',

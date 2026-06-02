@@ -1,7 +1,8 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StateService } from '../services/state.service';
-import { Question } from '../models/interview.models';
+import { EvaluationService } from '../services/evaluation.service';
+import { InterviewSession, Question, EvaluationResult } from '../models/interview.models';
 
 @Component({
   selector: 'app-topic-matrix',
@@ -57,14 +58,22 @@ import { Question } from '../models/interview.models';
               }
             </div>
           } @else {
-            <div class="unsupported-quiz-question panel">
-              <p>This quiz question uses the <strong>{{ currentQuestionType() }}</strong> type, which is not yet supported by the quiz interface.</p>
+            <div class="open-ended-quiz panel">
+              @if (currentQuestion()?.codeSnippet) {
+                <pre class="code-snippet">{{ currentQuestion()?.codeSnippet }}</pre>
+              }
+              <label class="form-label">Your answer</label>
+              <textarea class="form-input answer-textarea"
+                        [(ngModel)]="openEndedAnswerValue"
+                        placeholder="{{ currentQuestion()?.answerPlaceholder || 'Explain your reasoning in at least 15 characters...' }}">
+              </textarea>
+              <p class="input-help">Open-ended questions are scored by concept coverage, not exact wording.</p>
             </div>
           }
 
           <div class="quiz-footer">
             <button (click)="cancelQuiz()" class="btn btn-secondary">Exit Quiz</button>
-            <button (click)="nextQuestion()" class="btn btn-primary" [disabled]="currentQuestionType() === 'multiple-choice' ? selectedOptionIndex() === null : true">
+            <button (click)="nextQuestion()" class="btn btn-primary" [disabled]="!isCurrentQuestionAnswered()">
               {{ currentQuestionIndex() === activeQuestions().length - 1 ? 'Finish Quiz' : 'Next Question' }}
             </button>
           </div>
@@ -95,20 +104,37 @@ import { Question } from '../models/interview.models';
 
           <h3 class="review-heading">Question-by-Question Review</h3>
           <div class="review-list">
-            @for (q of activeQuestions(); track q.id; let idx = $index) {
-              <div class="review-item" [class.correct]="quizAnswers()[q.id] === q.correctOptionIndex">
+            @for (q of finalQuizResult()?.questions || activeQuestions(); track q.id; let idx = $index) {
+              @let evalResult = finalQuizResult()?.evaluations?.[q.id];
+              @let userAnswer = finalQuizResult()?.answers?.[q.id] || '';
+              <div class="review-item" [class.correct]="q.questionType === 'multiple-choice' ? quizAnswers()[q.id] === q.correctOptionIndex : evalResult?.score >= 70">
                 <div class="review-header">
                   <span class="q-num">Q{{ idx + 1 }}</span>
-                  <span class="review-status badge" [class.badge-success]="quizAnswers()[q.id] === q.correctOptionIndex" [class.badge-danger]="quizAnswers()[q.id] !== q.correctOptionIndex">
-                    {{ quizAnswers()[q.id] === q.correctOptionIndex ? 'Correct' : 'Incorrect' }}
+                  <span class="review-status badge" [class.badge-success]="q.questionType === 'multiple-choice' ? quizAnswers()[q.id] === q.correctOptionIndex : evalResult?.score >= 70" [class.badge-danger]="q.questionType === 'multiple-choice' ? quizAnswers()[q.id] !== q.correctOptionIndex : evalResult?.score < 70">
+                    {{ q.questionType === 'multiple-choice' ? (quizAnswers()[q.id] === q.correctOptionIndex ? 'Correct' : 'Incorrect') : (evalResult?.score >= 70 ? 'Strong' : 'Needs improvement') }}
                   </span>
                 </div>
                 <p class="q-txt"><strong>{{ q.questionText }}</strong></p>
                 <div class="review-details">
-                  <div class="user-ans">Your answer: <em>{{ q.options?.[quizAnswers()[q.id]] }}</em></div>
-                  @if (quizAnswers()[q.id] !== q.correctOptionIndex) {
-                    <div class="correct-ans">Correct answer: <strong>{{ q.options?.[q.correctOptionIndex || 0] }}</strong></div>
+                  <div class="user-ans">Your answer: <em>
+                    @if (q.questionType === 'multiple-choice') {
+                      {{ q.options?.[quizAnswers()[q.id]] }}
+                    } @else {
+                      {{ userAnswer }}
+                    }
+                  </em></div>
+
+                  @if (q.questionType === 'multiple-choice') {
+                    @if (quizAnswers()[q.id] !== q.correctOptionIndex) {
+                      <div class="correct-ans">Correct answer: <strong>{{ q.options?.[q.correctOptionIndex || 0] }}</strong></div>
+                    }
+                  } @else if (evalResult) {
+                    <div class="open-ended-score">Score: <strong>{{ evalResult.score }}%</strong></div>
+                    <div class="concept-explanation">
+                      <strong>Feedback:</strong> {{ evalResult.feedback }}
+                    </div>
                   }
+
                   <div class="concept-explanation">
                     <strong>Technical Context:</strong> {{ q.sampleAnswer }}
                   </div>
@@ -256,6 +282,33 @@ import { Question } from '../models/interview.models';
     .option-card.selected .option-bullet {
       background: var(--color-accent);
       color: var(--text-on-accent);
+    }
+
+    .answer-textarea {
+      width: 100%;
+      min-height: 160px;
+      resize: vertical;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+
+    .code-snippet {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      font-family: var(--font-mono);
+      white-space: pre-wrap;
+      margin-bottom: 16px;
+      overflow-x: auto;
     }
 
     .option-text {
@@ -416,10 +469,14 @@ export class TopicMatrixComponent {
   public readonly activeTopicId = signal<string>('');
   public readonly currentQuestionIndex = signal<number>(0);
   public readonly selectedOptionIndex = signal<number | null>(null);
+  public readonly openEndedAnswer = signal<string>('');
+  public readonly openEndedResponses = signal<Record<string, string>>({});
+  public readonly finalQuizResult = signal<InterviewSession | null>(null);
 
   // Storage for active session responses
   public readonly quizAnswers = signal<Record<string, number>>({});
   public readonly quizScore = signal<number>(0);
+  private readonly evaluationService = inject(EvaluationService);
 
   // Computed views
   public readonly activeTopicTitle = computed(() => {
@@ -439,6 +496,21 @@ export class TopicMatrixComponent {
   });
 
   public readonly currentQuestionType = computed(() => this.currentQuestion()?.questionType || 'multiple-choice');
+  public readonly isCurrentQuestionAnswered = computed(() => {
+    const type = this.currentQuestionType();
+    if (type === 'multiple-choice') {
+      return this.selectedOptionIndex() !== null;
+    }
+    return this.openEndedAnswer().trim().length >= 15;
+  });
+
+  public get openEndedAnswerValue(): string {
+    return this.openEndedAnswer();
+  }
+
+  public set openEndedAnswerValue(value: string) {
+    this.openEndedAnswer.set(value);
+  }
 
   // Action methods
   public getBestScore(topicId: string): number | undefined {
@@ -449,6 +521,9 @@ export class TopicMatrixComponent {
     this.activeTopicId.set(topicId);
     this.currentQuestionIndex.set(0);
     this.selectedOptionIndex.set(null);
+    this.openEndedAnswer.set('');
+    this.openEndedResponses.set({});
+    this.finalQuizResult.set(null);
     this.quizAnswers.set({});
     this.activeQuizState.set('quiz');
   }
@@ -465,50 +540,92 @@ export class TopicMatrixComponent {
     return String.fromCharCode(65 + index); // A, B, C, D...
   }
 
-  public nextQuestion(): void {
+  public async nextQuestion(): Promise<void> {
     const curQ = this.currentQuestion();
-    const selected = this.selectedOptionIndex();
+    if (!curQ) {
+      return;
+    }
 
-    if (curQ && selected !== null) {
-      // Record answer
+    const type = this.currentQuestionType();
+    if (type === 'multiple-choice') {
+      const selected = this.selectedOptionIndex();
+      if (selected === null) {
+        return;
+      }
       const answersMap = { ...this.quizAnswers() };
       answersMap[curQ.id] = selected;
       this.quizAnswers.set(answersMap);
-
-      const nextIdx = this.currentQuestionIndex() + 1;
-      const totalQs = this.activeQuestions().length;
-
-      if (nextIdx < totalQs) {
-        this.currentQuestionIndex.set(nextIdx);
-        this.selectedOptionIndex.set(null);
-      } else {
-        // Evaluate overall score
-        this.evaluateQuizResult();
+    } else {
+      const text = this.openEndedAnswer().trim();
+      if (text.length < 15) {
+        return;
       }
+      const answersMap = { ...this.openEndedResponses() };
+      answersMap[curQ.id] = text;
+      this.openEndedResponses.set(answersMap);
+      this.openEndedAnswer.set('');
+    }
+
+    const nextIdx = this.currentQuestionIndex() + 1;
+    const totalQs = this.activeQuestions().length;
+
+    if (nextIdx < totalQs) {
+      this.currentQuestionIndex.set(nextIdx);
+      this.selectedOptionIndex.set(null);
+    } else {
+      await this.evaluateQuizResult();
     }
   }
 
-  private evaluateQuizResult(): void {
+  private async evaluateQuizResult(): Promise<void> {
     const questions = this.activeQuestions();
-    const answers = this.quizAnswers();
-    let correctCount = 0;
+    const mcAnswers = this.quizAnswers();
+    const openAnswers = this.openEndedResponses();
+    const evaluations: Record<string, EvaluationResult> = {};
+    let totalScore = 0;
 
-    questions.forEach(q => {
-      if (answers[q.id] === q.correctOptionIndex) {
-        correctCount++;
+    await Promise.all(questions.map(async q => {
+      if (q.questionType === 'multiple-choice') {
+        const score = q.correctOptionIndex !== undefined && mcAnswers[q.id] === q.correctOptionIndex ? 100 : 0;
+        totalScore += score;
+      } else {
+        const answerText = openAnswers[q.id] || '';
+        const evalResult = await this.evaluationService.evaluateAnswer(q, answerText);
+        evaluations[q.id] = evalResult;
+        totalScore += evalResult.score;
       }
-    });
+    }));
 
-    const percentage = Math.round((correctCount / questions.length) * 100);
+    const percentage = Math.round(totalScore / questions.length);
     this.quizScore.set(percentage);
 
     // Save score in state
     this.state.saveQuizScore(this.activeTopicId(), percentage);
 
+    const session: InterviewSession = {
+      id: `quiz-${Date.now()}`,
+      timestamp: Date.now(),
+      questions,
+      currentQuestionIndex: questions.length - 1,
+      answers: {
+        ...Object.fromEntries(Object.entries(mcAnswers).map(([id, index]) => [id, String(index)])),
+        ...openAnswers
+      },
+      evaluations,
+      isCompleted: true,
+      totalScore: percentage
+    };
+
+    this.finalQuizResult.set(session);
     this.activeQuizState.set('result');
   }
 
   public resetQuizState(): void {
     this.activeQuizState.set('browse');
+    this.selectedOptionIndex.set(null);
+    this.openEndedAnswer.set('');
+    this.openEndedResponses.set({});
+    this.quizAnswers.set({});
+    this.finalQuizResult.set(null);
   }
 }
