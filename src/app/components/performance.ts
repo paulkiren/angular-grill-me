@@ -178,7 +178,7 @@ import { InterviewSession, ChallengeAttempt } from '../models/interview.models';
       </section>
 
       <!-- Session Inspector Drawer / Modal -->
-      @if (activeInspectSession(); let s) {
+      @if (activeInspectSession(); as s) {
         <div class="inspect-backdrop fade-in" (click)="closeSessionInspector()">
           <div class="inspect-drawer slide-in" (click)="$event.stopPropagation()">
             <div class="drawer-header">

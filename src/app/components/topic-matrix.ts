@@ -426,7 +426,7 @@ export class TopicMatrixComponent {
     return this.state.quizQuestions.filter(q => q.topic === activeId);
   });
 
-  public readonly currentQuestion = computed(() => {
+  public readonly currentQuestion = computed<Question | null>(() => {
     const questions = this.activeQuestions();
     const idx = this.currentQuestionIndex();
     return questions[idx] || null;
