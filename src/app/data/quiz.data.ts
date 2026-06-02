@@ -175,6 +175,26 @@ export const quizQuestionsData: Question[] = [
       { pattern: 'change\\s*detection', term: 'change detection', label: 'Understanding how OnPush evaluates component trees' }
     ]
   },
+  {
+    id: 'rx-3',
+    topic: 'rxjs',
+    title: 'Cancel HTTP requests with switchMap',
+    difficulty: 'Senior',
+    questionType: 'code-snippet',
+    tags: ['rxjs', 'switchMap', 'http'],
+    questionText: 'Review the code sample below and explain why using switchMap is better than mergeMap for this search stream.',
+    codeSnippet: 'const searchTerm$ = new Subject<string>();\nconst results$ = searchTerm$.pipe(\n  mergeMap(term => httpClient.get<SearchResults>(`/api/search?q=${term}`))\n);\nresults$.subscribe(data => {\n  this.results = data;\n});',
+    answerPlaceholder: 'Explain why mergeMap can produce stale results and how switchMap changes request behavior.',
+    rubrics: ['switchMap', 'cancel previous', 'stale results', 'http requests'],
+    sampleAnswer: 'Using mergeMap on a rapid search-term stream keeps every HTTP request active and can return responses out of order, which may render stale results. switchMap cancels the previous pending request when a new term arrives, ensuring the component only receives the latest response and avoiding race conditions.',
+    timeLimit: 120,
+    rubricMatchers: [
+      { pattern: 'switchMap', term: 'switchMap', label: 'Use switchMap to cancel previous request' },
+      { pattern: 'cancel|abort|unsubscribe', term: 'cancel previous', label: 'Previous request is cancelled on new emission' },
+      { pattern: 'stale|out[- ]of[- ]order|race', term: 'stale results', label: 'Avoid stale or out-of-order responses' },
+      { pattern: 'http|request|api', term: 'http requests', label: 'Relevant HTTP request behavior' }
+    ]
+  },
   // DI Topic
   {
     id: 'di-1',
