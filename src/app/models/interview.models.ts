@@ -4,18 +4,39 @@ export interface RubricMatcher {
   label: string;         // Descriptive evaluation label
 }
 
+export type QuestionType =
+  | 'multiple-choice'
+  | 'open-ended'
+  | 'code-snippet'
+  | 'select-all'
+  | 'drag-and-drop';
+
+export interface Topic {
+  id: string;
+  title: string;
+  description: string;
+  tags?: string[];
+  metadata?: Record<string, unknown>;
+}
+
 export interface Question {
   id: string;
   topic: string;
   title: string;
   questionText: string;
   difficulty: 'Junior' | 'Mid' | 'Senior';
+  questionType?: QuestionType;
   timeLimit: number; // in seconds
   rubrics: string[]; // essential keywords / concepts
   sampleAnswer: string;
   rubricMatchers?: RubricMatcher[]; // Embedded regex rubrics for dynamic evaluations
   options?: string[]; // Optional: for micro-quizzes
-  correctOptionIndex?: number; // Optional: for micro-quizzes
+  correctOptionIndex?: number; // Optional: for single-choice micro-quizzes
+  correctOptionIndexes?: number[]; // Optional: for multi-select questions
+  codeSnippet?: string;
+  answerPlaceholder?: string;
+  tags?: string[];
+  metadata?: Record<string, unknown>;
 }
 
 export interface EvaluationResult {

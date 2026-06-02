@@ -74,6 +74,7 @@ This project is organized around a lightweight Angular app using standalone comp
 - `src/app/services/state.service.ts` - application state and persistence.
 - `src/app/services/evaluation.service.ts` - interview evaluation logic and scoring.
 - `src/app/models/interview.models.ts` - shared types for questions, sessions, and evaluations.
+- `src/app/data/quiz.data.ts` - plugin-friendly quiz topic and question registry for extending topics without changing core state logic.
 
 ## Project Structure
 
