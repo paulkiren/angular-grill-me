@@ -105,6 +105,72 @@ npm test
    - Run `npm test` and confirm the suite passes.
    - Run `npm run build` and confirm a production build completes successfully.
 
+### Extending topics as an Angular developer or architect
+
+The app is data-driven: new topics and questions are defined in `src/app/data/quiz.data.ts`.
+
+To add a new topic:
+
+1. Open `src/app/data/quiz.data.ts`.
+2. Add a new object to `quizTopicsData` with:
+   - `id`: a unique key for the topic.
+   - `title`: the topic title shown in the Skills Matrix.
+   - `description`: a short summary of the topic.
+
+To add questions for that topic:
+
+1. Add new objects to `quizQuestionsData`.
+2. Each question object should include:
+   - `id`: unique question identifier.
+   - `topic`: the topic `id` it belongs to.
+   - `title`: a brief question title.
+   - `difficulty`: `Junior`, `Mid`, or `Senior`.
+   - `questionType`: `multiple-choice`, `open-ended`, or `code-snippet`.
+   - `questionText`: the prompt shown to the user.
+   - `tags`: keywords for the question.
+   - `rubrics`: scoring concepts used for open-ended review.
+   - `sampleAnswer`: a model answer or explanation.
+   - `timeLimit`: optional time guidance.
+
+For `multiple-choice` questions, also include:
+
+- `options`: string array of choices.
+- `correctOptionIndex`: index of the correct choice.
+
+For `code-snippet` questions, optionally include:
+
+- `codeSnippet`: a code block string displayed above the answer field.
+
+Example:
+
+```ts
+quizTopicsData.push({
+  id: 'ngrx',
+  title: 'State Management',
+  description: 'NgRx, signals, stores, effects, and best practices for application state.'
+});
+
+quizQuestionsData.push({
+  id: 'ngrx-1',
+  topic: 'ngrx',
+  title: 'Store vs Component State',
+  difficulty: 'Mid',
+  questionType: 'open-ended',
+  tags: ['state management', 'ngrx'],
+  questionText: 'When should you keep state in NgRx store versus local component state?',
+  answerPlaceholder: 'Explain the tradeoffs and when each approach fits best.',
+  rubrics: ['global state', 'local state', 'performance', 'encapsulation'],
+  sampleAnswer: 'Use NgRx store for shared domain state and cross-component communication, while local component state is better for UI-only data and ephemeral values.',
+  timeLimit: 90,
+  rubricMatchers: [
+    { pattern: 'global|shared|application', term: 'global state', label: 'Shared application state in store' },
+    { pattern: 'local|component|view', term: 'local state', label: 'Component-local state for UI concerns' }
+  ]
+});
+```
+
+Because the app already reads both `quizTopicsData` and `quizQuestionsData`, no component code changes are needed for most new topic additions.
+
 ## Application Overview
 
 This project is organized around a lightweight Angular app using standalone components.
