@@ -45,20 +45,26 @@ import { Question } from '../models/interview.models';
 
           <h2 class="question-text">{{ currentQuestion()?.questionText }}</h2>
 
-          <div class="options-list">
-            @for (option of currentQuestion()?.options; track $index) {
-              <div class="option-card"
-                   [class.selected]="selectedOptionIndex() === $index"
-                   (click)="selectOption($index)">
-                <span class="option-bullet">{{ getOptionLetter($index) }}</span>
-                <p class="option-text">{{ option }}</p>
-              </div>
-            }
-          </div>
+          @if (currentQuestionType() === 'multiple-choice') {
+            <div class="options-list">
+              @for (option of currentQuestion()?.options; track $index) {
+                <div class="option-card"
+                     [class.selected]="selectedOptionIndex() === $index"
+                     (click)="selectOption($index)">
+                  <span class="option-bullet">{{ getOptionLetter($index) }}</span>
+                  <p class="option-text">{{ option }}</p>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="unsupported-quiz-question panel">
+              <p>This quiz question uses the <strong>{{ currentQuestionType() }}</strong> type, which is not yet supported by the quiz interface.</p>
+            </div>
+          }
 
           <div class="quiz-footer">
             <button (click)="cancelQuiz()" class="btn btn-secondary">Exit Quiz</button>
-            <button (click)="nextQuestion()" class="btn btn-primary" [disabled]="selectedOptionIndex() === null">
+            <button (click)="nextQuestion()" class="btn btn-primary" [disabled]="currentQuestionType() === 'multiple-choice' ? selectedOptionIndex() === null : true">
               {{ currentQuestionIndex() === activeQuestions().length - 1 ? 'Finish Quiz' : 'Next Question' }}
             </button>
           </div>
@@ -431,6 +437,8 @@ export class TopicMatrixComponent {
     const idx = this.currentQuestionIndex();
     return questions[idx] || null;
   });
+
+  public readonly currentQuestionType = computed(() => this.currentQuestion()?.questionType || 'multiple-choice');
 
   // Action methods
   public getBestScore(topicId: string): number | undefined {
