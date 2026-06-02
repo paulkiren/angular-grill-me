@@ -1,59 +1,99 @@
-# AngularGrillMe
+# Angular Grill Me
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.13.
+Angular Grill Me is a modern Angular interview prep application built with Angular 21. It delivers an interactive mock interview simulator, topic-based quizzes, performance analytics, and a developer playground for practicing and reviewing Angular concepts.
 
-## Development server
+## Key Features
 
-To start a local development server, run:
+- **Mock Interview Simulator**: role-play technical screening scenarios, answer interview-style questions, and receive real-time feedback.
+- **Topic Matrix & Quizzes**: choose core Angular topics and complete quizzes with instant scoring and review explanations.
+- **Performance Dashboard**: view historical interview sessions, focus recommendations, and topic mastery analytics.
+- **Code Playground**: practice refactoring and Angular-specific code challenges.
+- **Theme Support**: light/dark mode persisted across sessions.
+- **Standalone Component Architecture**: uses Angular v21 standalone components and router lazy-loading.
 
-```bash
-ng serve
-```
+## Tech Stack
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Angular 21.2.x
+- TypeScript 5.9
+- Vitest for unit testing
+- Prettier for formatting
+- RxJS for reactive state patterns
 
-## Code scaffolding
+## Getting Started
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Prerequisites
 
-```bash
-ng generate component component-name
-```
+- Node.js 20+ (recommended)
+- npm 10+
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+### Install
 
 ```bash
-ng build
+npm install
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### Run locally
 
 ```bash
-ng test
+npm start
 ```
 
-## Running end-to-end tests
+Open `http://localhost:4200` in your browser.
 
-For end-to-end (e2e) testing, run:
+### Build for production
 
 ```bash
-ng e2e
+npm run build
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### Watch mode
 
-## Additional Resources
+```bash
+npm run watch
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### Run unit tests
+
+```bash
+npm test
+```
+
+## Application Overview
+
+This project is organized around a lightweight Angular app using standalone components.
+
+### Core application files
+
+- `src/app/app.ts` - root component that manages theme state and app shell behavior.
+- `src/app/app.routes.ts` - Angular router configuration with lazy-loaded routes for each page.
+- `src/app/components/dashboard.ts` - welcome dashboard with readiness score and feature links.
+- `src/app/components/interview.ts` - mock interview simulator and evaluation workflow.
+- `src/app/components/topic-matrix.ts` - topic quiz selection and interactive quiz UI.
+- `src/app/components/playground.ts` - interactive coding practice area.
+- `src/app/components/performance.ts` - analytics, history, and progress insights.
+- `src/app/services/state.service.ts` - application state and persistence.
+- `src/app/services/evaluation.service.ts` - interview evaluation logic and scoring.
+- `src/app/models/interview.models.ts` - shared types for questions, sessions, and evaluations.
+
+## Project Structure
+
+- `src/` - main Angular source code
+- `public/` - static assets included in the build
+- `dist/` - production output folder after build
+- `angular.json` - Angular workspace configuration
+- `package.json` - scripts and dependencies
+
+## Notes
+
+- The application currently uses local evaluation logic for interview feedback. The interview screen offers an *optional* Gemini API key input for external AI scoring when configured.
+- E2E tests are not included by default. You can add a framework such as Cypress, Playwright, or Protractor if desired.
+
+## Recommended Improvements
+
+- add end-to-end test coverage
+- introduce issue and PR templates for contributor workflows
+- add a `LICENSE` file if this repository will be shared publicly
+
+## Contributing
+
+Please see `CONTRIBUTING.md` for contribution guidelines.
