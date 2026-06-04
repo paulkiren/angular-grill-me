@@ -96,7 +96,7 @@ import { QuestionRendererComponent } from './renderers/question-renderer';
                   <span class="review-status badge" 
                         [class.badge-success]="isCorrect" 
                         [class.badge-danger]="!isCorrect">
-                    {{ q.questionType === 'multiple-choice' || q.questionType === 'select-all' ? (isCorrect ? 'Correct' : 'Incorrect') : (evalResult?.score >= 70 ? 'Strong' : 'Needs improvement') }}
+                    {{ q.questionType === 'multiple-choice' || q.questionType === 'select-all' ? (isCorrect ? 'Correct' : 'Incorrect') : ((evalResult?.score ?? 0) >= 70 ? 'Strong' : 'Needs improvement') }}
                   </span>
                 </div>
                 <p class="q-txt"><strong>{{ q.questionText }}</strong></p>
