@@ -37,6 +37,15 @@ To guarantee long-term maintenance and scaling, the codebase follows four strict
 
 ---
 
+## 🎯 Global User-Facing Success Criteria
+
+To ensure we deliver value to both learners and contributors, success is measured against these key user-facing criteria:
+* **For Learners**: A user can complete any topic quiz and receive a clear, actionable review detailing missing concepts and remediation recommendations to guide their study.
+* **For Contributors**: A developer can add or extend a topic pack or question by writing static JSON/objects without writing component code, and have the content pass automated validation in CI.
+* **For Operators**: The application runs completely serverless with safe defaults, protecting user state and degrading gracefully if external integrations are missing.
+
+---
+
 ## 🗺️ Version Release Plan
 
 ```mermaid
@@ -60,13 +69,14 @@ gantt
   - Implemented 80%+ history serialization compression.
 * **Success Metrics**:
   - **100%** of legacy storage entries migrated successfully.
-  - Initial app boot time under **1.2 seconds**.
   - Local storage payload reduced by **>80%** per session.
 
 ---
 
 ### 2. `v0.1.0` — MVP Extensible Renderer (Active)
-* **Goal**: Build a clean renderer strategy to support 3-4 core question formats with unified state management and comprehensive score review.
+* **Goal**: Build an extensible, strategy-based renderer supporting three core question types, establishing consistent validation and scoring reviews.
+* **User Acceptance Criteria**:
+  - A user can complete a topic quiz containing single-select, multi-select, and text questions, seeing exactly what they answered and where they need improvement.
 * **Key Milestones**:
   - Establish a solid contract for `QuestionType` (`multiple-choice`, `open-ended`, `code-snippet`, `select-all`).
   - Implement a generic host `QuestionRendererComponent` using a strategy switcher pattern.
@@ -76,73 +86,67 @@ gantt
     - `TextRenderer` (dual-mode text area for open-ended and code snippets).
   - Unify validation states (e.g. check validation constraints before enabling "Next").
   - Redesign review and explanation panels to show exact options corrections and scoring criteria.
-* **Key Risks & Mitigations**:
-  - *Risk*: Multiple-choice and text answers require different data formats.
-  - *Mitigation*: Candidates' answers map to `Record<string, string>`, where multi-select answers are stored as comma-separated index strings (e.g. `"0,2"`), preserving database compatibility.
-* **Success Metrics**:
-  - **95%+** of standard quiz iterations completed without JavaScript exceptions.
-  - Interactive layouts adapt cleanly to screen widths down to **320px**.
-  - UI inputs achieve **<16ms** Interaction to Next Paint (INP).
+* **Release Criteria & Metrics**:
+  - **100%** of core quiz flows complete with zero JavaScript runtime errors.
+  - Layout adapts fluidly on mobile devices down to **320px** wide.
+  - *Performance targets (aspirational)*: Interaction to Next Paint (INP) under **16ms** and initial boot time under **1.5s** on a representative mid-range baseline mobile device.
 
 ---
 
-### 3. `v0.2.0` — Contributor Experience & Content Expansion
-* **Goal**: Expand core topics while establishing contribution protocols and secure registry plugins.
+### 3. `v0.2.0` — Contributor Experience & Topic Packs
+* **Goal**: Expand core topics, publish contribution guidelines, and implement a secure, schema-validated registry loader.
+* **User Acceptance Criteria**:
+  - Contributors can author and plug in new topics using static TypeScript data files without modifying component code or styling assets.
 * **Key Milestones**:
   - Add **Angular Router**, **Advanced Forms**, and **Zoneless Optimization** topic packs.
-  - Define metadata fields for learning outcomes, difficulty thresholds, and categories.
-  - Create a developer-facing `CONTRIBUTING_CONTENT.md` guide outlining how to add questions, write regex rubrics, and structure coding challenges.
-  - Write validation schemas to test data files for correct options and references during CI build.
-  - Implement a basic registry loader with local asset fallbacks.
-* **Key Risks & Mitigations**:
-  - *Risk*: Contributors submit broken structures or invalid regexes.
-  - *Mitigation*: Implement automated JSON schema validation and unit tests verifying regex compilation before pull requests can merge.
-* **Success Metrics**:
+  - Write a developer-facing `CONTRIBUTING_CONTENT.md` guide outlining how to add questions, write regex rubrics, and structure coding challenges.
+  - **Content Validation Schema**: Run validation tests in CI checking option indices, topic IDs, and regex patterns for syntax errors.
+  - **Plugin Security & Fallbacks**: Implement a registry loader with strict schema validation. Untrusted or malformed content is rejected in favor of safe local defaults.
+* **Release Criteria & Metrics**:
   - Zero code modifications required to register a new topic pack.
-  - Registry validator flags **100%** of malformed questions during testing.
+  - CI validator detects and rejects **100%** of malformed schema inputs (e.g., correct index out of options bounds).
 
 ---
 
-### 4. `v0.3.0` — Analytics & Diagnostics
-* **Goal**: Build an outcomes-based learning dashboard and calibrate rubric evaluation validity.
+### 4. `v0.3.0` — Diagnostics & Content Validity
+* **Goal**: Implement remediation suggestions, track mastery progression, and validate rubric/scoring calibration.
+* **User Acceptance Criteria**:
+  - A user sees study recommendations linking to external references for every concept they missed.
 * **Key Milestones**:
   - Track topic mastery over time based on historical quizzes and playground achievements.
-  - Display weak spots, core recommended readings, and guided remediation links based on low-scoring rubrics.
-  - Calibrate evaluation engine: execute test runs matching candidate inputs against expected rubrics, assessing true positive/negative matching.
+  - **Guided Remediation**: Add links to official docs/reference material associated with specific rubric patterns.
+  - **Content Validity Calibration**: Validate question difficulty and rubric criteria. Conduct human reviews of sample answers against regex checkers to verify grading reliability.
   - Introduce partial-credit grading: score responses proportionally if only some rubric matches are met.
-* **Key Risks & Mitigations**:
-  - *Risk*: Rubric matching is too strict, leading to false negatives and developer frustration.
-  - *Mitigation*: Run validation suites containing typical student answers to tune regex tolerances and keyword fallbacks.
-* **Success Metrics**:
-  - Diagnostic matching accuracy reaches **90%** alignment with expert human evaluation.
-  - Remediation logic successfully identifies and suggests the lowest scoring concepts in **100%** of cases.
+* **Release Criteria & Metrics**:
+  - Scoring evaluations achieve **90%+** agreement with expert human review on a test set of student responses.
+  - Remediation engine suggests matching study links in **100%** of failed question reviews.
 
 ---
 
 ### 5. `v0.4.0` — Additive AI Evaluations
 * **Goal**: Add optional, non-blocking AI-powered grading support for rich technical explanations.
+* **User Acceptance Criteria**:
+  - A user can optionally toggle AI analysis to get semantic feedback on their written responses without affecting the core local grade.
 * **Key Milestones**:
   - Integrate an optional cloud-based scoring adapter (e.g. Gemini Pro / Firebase AI logic).
   - Treat AI evaluation as a secondary overlay that runs asynchronously without blocking the local rubric score.
   - Show side-by-side AI commentary highlighting missing conceptual nuances and code improvements.
-  - Implement user feedback controls ("Is this AI evaluation helpful?") to log accuracy ratings.
-* **Key Risks & Mitigations**:
-  - *Risk*: Missing/invalid API keys or network latency stalls the quiz execution flow.
-  - *Mitigation*: Run local regex checks as the primary instant score. If the API key is missing or fails, gracefully display the local score explanation with zero disruption.
-* **Success Metrics**:
-  - **100%** of network failures or invalid key scenarios degrade gracefully to local grading.
-  - Average AI overlay latency under **3 seconds** with async loading indicators.
+* **Plugin Safety & Fallback**:
+  - Fail-safe network behavior: if the external API is unreachable or has invalid configuration, the application gracefully degrades to local regex rubrics with zero interruption.
+* **Release Criteria & Metrics**:
+  - Network timeouts and authentication errors result in **0** application crashes.
+  - Average AI response overlay latency is under **3 seconds** on standard mobile networks.
 
 ---
 
 ### 6. `v1.0.0` — Production Polish
 * **Goal**: Deliver a highly accessible, offline-capable, enterprise-quality web application.
+* **User Acceptance Criteria**:
+  - The application works completely offline and is fully usable via keyboards and screen readers.
 * **Key Milestones**:
-  - Conduct full keyboard and screen reader accessibility checks (WCAG 2.2 AA).
+  - Conduct full keyboard and screen reader accessibility checks (WCAG 2.2 AA alignment).
   - Implement Service Worker caching rules for PWA capability, enabling fully offline preparation.
   - Write complete Playwright E2E suites verifying critical workflows (taking a quiz, finishing a coding challenge, viewing history).
-  - Enable production builds with advanced tree-shaking, minification, and visual asset optimizations.
-* **Success Metrics**:
-  - **100/100** Lighthouse scores for SEO, Best Practices, and Accessibility.
-  - Zero critical security warnings in the build pipeline.
+* **Release Criteria & Metrics**:
+  - **95+** Lighthouse scores for SEO, Best Practices, and Accessibility.
   - E2E tests achieve **100%** coverage of core user flows.
