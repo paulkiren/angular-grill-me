@@ -341,5 +341,43 @@ export const quizQuestionsData: Question[] = [
       { pattern: 'type\\s*safety|type\\s*infer', term: 'type safety', label: 'Excellent type inference support' },
       { pattern: 'functional|function', term: 'functional', label: 'Enables DI in functional route guards and operators' }
     ]
+  },
+  {
+    id: 'sig-3',
+    topic: 'signals',
+    title: 'Signal Readability & Effects',
+    difficulty: 'Mid',
+    questionType: 'select-all',
+    tags: ['signals', 'effect', 'computed'],
+    questionText: 'Which of the following statements about Angular Signals and effects are correct? Select all that apply.',
+    rubrics: ['lazy computation', 'effect scheduling', 'signal writes', 'auto unsubscribe'],
+    sampleAnswer: 'Effects schedule executions asynchronously on a microtask boundary and disallow signal writes by default to prevent infinite feedback loops. Computed signals are evaluated lazily only when read. Effects automatically track dependencies and release them upon destruction.',
+    options: [
+      'effect() runs asynchronously during the change detection microtask queue.',
+      'computed() values are evaluated eagerly as soon as their dependency signals change.',
+      'By default, writing to signals inside an effect() is disallowed to prevent infinite loops.',
+      'An effect() automatically tracks and unsubscribes from signal dependencies when they are destroyed.'
+    ],
+    correctOptionIndexes: [0, 2, 3],
+    timeLimit: 75
+  },
+  {
+    id: 'di-2',
+    topic: 'di',
+    title: 'Hierarchical Dependency Injection',
+    difficulty: 'Senior',
+    questionType: 'open-ended',
+    tags: ['di', 'hierarchy', 'providers'],
+    questionText: 'Explain how Angular resolves a dependency when requested in a child component using hierarchical injectors, and how tree-shakable providers affect bundle sizes.',
+    rubrics: ['bubble up', 'element injector', 'environment injector', 'providedIn root', 'tree-shaking'],
+    sampleAnswer: 'When a dependency is requested, Angular first searches the Element Injector hierarchy, starting from the requesting component and bubbling up through parent components. If not found, it traverses the Environment Injector hierarchy (route injectors, root environment injector). Tree-shakable providers using @Injectable({ providedIn: "root" }) allow the compiler to omit unused service classes from the final production bundle.',
+    timeLimit: 120,
+    rubricMatchers: [
+      { pattern: 'bubble|lookup|traverse|up', term: 'bubble up', label: 'Traverses the parent element hierarchy' },
+      { pattern: 'element\\s*injector', term: 'element injector', label: 'Looks up through Element Injector tree' },
+      { pattern: 'environment|root|platform', term: 'environment injector', label: 'Looks up through Environment/Root Injectors' },
+      { pattern: 'providedIn|root\\s*provider', term: 'providedIn root', label: 'Registers via providedIn config' },
+      { pattern: 'tree-shak|unused|shake', term: 'tree-shaking', label: 'Enables tree-shaking of unused service instances' }
+    ]
   }
 ];
