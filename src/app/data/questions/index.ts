@@ -7,6 +7,7 @@ import { angularMigrationTopic, angularMigrationQuestions } from './angular-migr
 import { routingTopic, routingQuestions } from './routing.questions';
 import { formsTopic, formsQuestions } from './forms.questions';
 import { httpTopic, httpQuestions } from './http.questions';
+import { standaloneTopic, standaloneQuestions } from './standalone.questions';
 
 // — Add new topic imports here as content grows —
 // import { directivesPipesTopic, directivesPipesQuestions } from './directives-pipes.questions';
@@ -25,6 +26,7 @@ export const allTopics = [
   routingTopic,
   formsTopic,
   httpTopic,
+  standaloneTopic,
 ];
 
 export const allQuestions = [
@@ -37,4 +39,5 @@ export const allQuestions = [
   ...routingQuestions,
   ...formsQuestions,
   ...httpQuestions,
+  ...standaloneQuestions,
 ];

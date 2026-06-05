@@ -10,6 +10,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.2.0-beta.3] — 2026-06-05
+
+### Added
+- **Standalone Architecture** topic (`standalone.questions.ts`) — 4 questions (MVP target met, all Critical areas now covered):
+  - `sa-1` What standalone: true removes vs NgModule (Junior, Understand)
+  - `sa-2` bootstrapApplication vs platformBrowserDynamic (Mid, Understand)
+  - `sa-3` Consuming NgModule libraries from standalone components (Mid, Apply)
+  - `sa-4` Incremental NgModule-to-standalone migration strategy (Senior, Evaluate)
+
+### Stats
+- Total questions: **53**
+- Topics with content: **10**
+- **All 6 Critical-priority areas now at MVP coverage** ✓
+
+---
+
 ## [0.2.0-beta.2] — 2026-06-05
 
 ### Added
