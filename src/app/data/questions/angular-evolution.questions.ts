@@ -47,10 +47,10 @@ export const angularEvolutionQuestions: Question[] = [
     sinceVersion: '18.0',
     assessmentEligible: true,
     tags: ['angular', 'signals', 'zoneless', 'architecture'],
-    questionText: 'Explain how Angular 21's zoneless default and signals-first direction change application architecture compared to earlier Zone.js-based versions.',
+    questionText: "Explain how Angular 21's zoneless default and signals-first direction change application architecture compared to earlier Zone.js-based versions.",
     answerPlaceholder: 'Describe the architectural impact, change detection behavior, and developer benefits of zoneless apps.',
     rubrics: ['zoneless', 'signals-first', 'change detection', 'performance', 'testability'],
-    sampleAnswer: 'Angular 21's zoneless default shifts applications away from Zone.js monkey-patching toward explicit reactivity. Signals-first architecture makes UI updates deterministic, reduces hidden side effects, improves testability, and enables better performance by scoping updates to affected computations instead of full-zone change detection.',
+    sampleAnswer: "Angular 21's zoneless default shifts applications away from Zone.js monkey-patching toward explicit reactivity. Signals-first architecture makes UI updates deterministic, reduces hidden side effects, improves testability, and enables better performance by scoping updates to affected computations instead of full-zone change detection.",
     timeLimit: 120,
     rubricMatchers: [
       { pattern: 'zoneless|Zone\\.js|zonejs', term: 'zoneless', label: 'Move away from Zone.js to zoneless execution', weight: 3 },

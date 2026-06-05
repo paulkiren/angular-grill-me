@@ -100,7 +100,7 @@ export const signalsQuestions: Question[] = [
     tags: ['signals', 'model', 'two-way binding'],
     questionText: 'What does the `model()` input in Angular do and how does it differ from a regular `input()` signal?',
     rubrics: ['writable', 'two-way', 'child updates', 'parent sync'],
-    sampleAnswer: '`model()` creates a writable signal input that enables two-way data binding. Unlike `input()` which is read-only from the child's perspective, `model()` allows the child component to update the value, and the change is automatically propagated back to the parent via the corresponding `(modelChange)` event binding.',
+    sampleAnswer: "`model()` creates a writable signal input that enables two-way data binding. Unlike `input()` which is read-only from the child's perspective, `model()` allows the child component to update the value, and the change is automatically propagated back to the parent via the corresponding `(modelChange)` event binding.",
     options: [
       'model() is identical to input() but adds validation.',
       'model() creates a writable signal input enabling two-way binding; the child can update the value and the parent is automatically notified.',
