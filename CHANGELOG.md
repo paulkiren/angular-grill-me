@@ -10,6 +10,43 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.2.0-beta.2] — 2026-06-05
+
+### Added
+- **Routing & Navigation** topic (`routing.questions.ts`) — 8 questions (MVP target met):
+  - `rt-1` params vs queryParams (Junior, Understand)
+  - `rt-2` loadComponent lazy loading (Junior, Understand)
+  - `rt-3` Functional route guards with inject() (Mid, Apply)
+  - `rt-4` Route resolvers and trade-offs (Mid, Apply)
+  - `rt-5` Child routes and shared layouts (Mid, Apply)
+  - `rt-6` UrlTree redirects vs router.navigate() (Mid, Analyze)
+  - `rt-7` Preloading strategies compared (Senior, Evaluate)
+  - `rt-8` Router events and navigation lifecycle (Senior, Analyze)
+- **Reactive Forms** topic (`forms.questions.ts`) — 8 questions (MVP target met):
+  - `fm-1` FormControl vs FormGroup vs FormArray (Junior, Understand)
+  - `fm-2` Built-in vs custom validators (Mid, Apply)
+  - `fm-3` Async validators with debounce (Mid, Apply)
+  - `fm-4` Typed Reactive Forms — Angular 14+ (Mid, Understand)
+  - `fm-5` valueChanges and nested subscribe anti-pattern (Mid, Apply)
+  - `fm-6` Dynamic form controls with FormArray (Mid, Apply)
+  - `fm-7` Cross-field validation on FormGroup (Senior, Analyze)
+  - `fm-8` Reactive vs Template-driven Forms trade-offs (Junior, Evaluate)
+- **HTTP & Interceptors** topic (`http.questions.ts`) — 6 questions (MVP target met):
+  - `http-1` HttpClient typed responses (Junior, Understand)
+  - `http-2` Functional HTTP interceptors (Mid, Apply)
+  - `http-3` Error handling with catchError (Mid, Apply)
+  - `http-4` Retry strategies with exponential backoff (Senior, Analyze)
+  - `http-5` HttpContext tokens to skip interceptors (Senior, Evaluate)
+  - `http-6` Request caching interceptor design (Senior, Create)
+- All three topics registered in `questions/index.ts`.
+
+### Stats
+- Total questions: **49** (was 27)
+- Topics with content: **9** (was 6)
+- Critical-priority areas at MVP coverage: **5 / 6** (Standalone Architecture remaining)
+
+---
+
 ## [0.2.0-beta.1] — 2026-06-05
 
 ### Added
