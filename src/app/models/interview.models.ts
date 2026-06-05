@@ -1,7 +1,8 @@
 export interface RubricMatcher {
-  pattern: string;       // Regex pattern string
-  term: string;          // Key term (e.g. 'initial value')
-  label: string;         // Descriptive evaluation label
+  pattern: string;
+  term: string;
+  label: string;
+  weight?: number; // 1–5; higher = more credit. Defaults to 1 when absent.
 }
 
 export type QuestionType =
@@ -10,6 +11,15 @@ export type QuestionType =
   | 'code-snippet'
   | 'select-all'
   | 'drag-and-drop';
+
+// Bloom's Taxonomy cognitive levels — determines question depth and assessment eligibility
+export type BloomLevel =
+  | 'remember'   // recall facts, definitions, API names
+  | 'understand' // explain behaviour, describe why
+  | 'apply'      // use in code, fix a bug, implement a pattern
+  | 'analyze'    // diagnose a problem, compare options, trace root causes
+  | 'evaluate'   // justify a design choice, argue trade-offs
+  | 'create';    // design a solution from requirements (Senior only)
 
 export interface Topic {
   id: string;
@@ -26,13 +36,17 @@ export interface Question {
   questionText: string;
   difficulty: 'Junior' | 'Mid' | 'Senior';
   questionType?: QuestionType;
-  timeLimit: number; // in seconds
-  rubrics: string[]; // essential keywords / concepts
+  bloomLevel: BloomLevel;
+  sinceVersion: string;      // Angular version that introduced this concept, e.g. '14.0'
+  deprecatedIn?: string;     // Angular version where pattern became obsolete
+  assessmentEligible: boolean; // false = learning mode only (hint embedded in question text)
+  timeLimit: number;
+  rubrics: string[];
   sampleAnswer: string;
-  rubricMatchers?: RubricMatcher[]; // Embedded regex rubrics for dynamic evaluations
-  options?: string[]; // Optional: for micro-quizzes
-  correctOptionIndex?: number; // Optional: for single-choice micro-quizzes
-  correctOptionIndexes?: number[]; // Optional: for multi-select questions
+  rubricMatchers?: RubricMatcher[];
+  options?: string[];
+  correctOptionIndex?: number;
+  correctOptionIndexes?: number[];
   codeSnippet?: string;
   answerPlaceholder?: string;
   tags?: string[];
