@@ -8,11 +8,11 @@ import { routingTopic, routingQuestions } from './routing.questions';
 import { formsTopic, formsQuestions } from './forms.questions';
 import { httpTopic, httpQuestions } from './http.questions';
 import { standaloneTopic, standaloneQuestions } from './standalone.questions';
+import { directivesPipesTopic, directivesPipesQuestions } from './directives-pipes.questions';
+import { componentArchitectureTopic, componentArchitectureQuestions } from './component-architecture.questions';
+import { testingTopic, testingQuestions } from './testing.questions';
 
 // — Add new topic imports here as content grows —
-// import { directivesPipesTopic, directivesPipesQuestions } from './directives-pipes.questions';
-// import { componentArchitectureTopic, componentArchitectureQuestions } from './component-architecture.questions';
-// import { testingTopic, testingQuestions } from './testing.questions';
 // import { ssrTopic, ssrQuestions } from './ssr-hydration.questions';
 // import { buildTopic, buildQuestions } from './build-optimization.questions';
 
@@ -27,6 +27,9 @@ export const allTopics = [
   formsTopic,
   httpTopic,
   standaloneTopic,
+  directivesPipesTopic,
+  componentArchitectureTopic,
+  testingTopic,
 ];
 
 export const allQuestions = [
@@ -40,4 +43,7 @@ export const allQuestions = [
   ...formsQuestions,
   ...httpQuestions,
   ...standaloneQuestions,
+  ...directivesPipesQuestions,
+  ...componentArchitectureQuestions,
+  ...testingQuestions,
 ];

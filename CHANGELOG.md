@@ -10,6 +10,39 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.2.0-beta.4] — 2026-06-05
+
+### Added
+- **Directives & Pipes** topic (`directives-pipes.questions.ts`) — 6 questions (MVP target met):
+  - `dp-1` Structural vs attribute directives (Junior, Understand)
+  - `dp-2` New control flow @if / @for / @switch vs *ngIf (Junior, Understand)
+  - `dp-3` Building a custom attribute directive with HostListener (Mid, Apply)
+  - `dp-4` Pure vs impure pipes and performance implications (Mid, Analyze)
+  - `dp-5` Custom pipe — identifying null safety and standalone problems (Mid, Apply)
+  - `dp-6` Directive composition API with hostDirectives (Senior, Evaluate)
+- **Component Architecture** topic (`component-architecture.questions.ts`) — 6 questions (MVP target met):
+  - `ca-1` Smart vs presentational component pattern (Mid, Analyze)
+  - `ca-2` input() signal vs @Input() decorator (Mid, Understand)
+  - `ca-3` Content projection with named ng-content slots (Mid, Apply)
+  - `ca-4` Lifecycle hook execution order and ViewChild safety (Mid, Analyze)
+  - `ca-5` Component communication patterns compared (Senior, Evaluate)
+  - `ca-6` ViewEncapsulation modes and when to switch (Senior, Analyze)
+- **Testing** topic (`testing.questions.ts`) — 6 questions (MVP target met):
+  - `tst-1` TestBed.configureTestingModule for standalone components (Junior, Understand)
+  - `tst-2` Mocking services with useValue spy vs useClass fake (Mid, Apply)
+  - `tst-3` Testing signal-driven components (Mid, Apply)
+  - `tst-4` Fixing a failing async test with fakeAsync and tick (Mid, Apply)
+  - `tst-5` Component test harnesses vs direct DOM queries (Senior, Evaluate)
+  - `tst-6` What to test and what not to test in a component (Senior, Evaluate)
+
+### Stats
+- Total questions: **71**
+- Topics with content: **13**
+- **All 3 High-priority areas now at MVP coverage** ✓
+- Remaining Medium-priority areas: SSR & Hydration, Build & Optimization, Angular Migration (expand), Angular Evolution (expand)
+
+---
+
 ## [0.2.0-beta.3] — 2026-06-05
 
 ### Added
