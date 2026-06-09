@@ -39,6 +39,7 @@ export interface Question {
   bloomLevel: BloomLevel;
   sinceVersion: string;      // Angular version that introduced this concept, e.g. '14.0'
   deprecatedIn?: string;     // Angular version where pattern became obsolete
+  conceptId?: string;        // FEAT-001: links this practice question to the Concept it tests
   assessmentEligible: boolean; // false = learning mode only (hint embedded in question text)
   timeLimit: number;
   rubrics: string[];
@@ -51,6 +52,21 @@ export interface Question {
   answerPlaceholder?: string;
   tags?: string[];
   metadata?: Record<string, unknown>;
+}
+
+// FEAT-001 (v0.3.0 / WS1) — the teaching atom a learner reads BEFORE being assessed.
+// Bodies use structured fields (no markdown parser) per FEAT-001 Decision D1.
+export interface Concept {
+  id: string;            // e.g. 'concept-signals-vs-observables'
+  topic: string;         // matches Topic.id / Question.topic, e.g. 'signals'
+  title: string;
+  summary: string;       // one-sentence "what is this"
+  explanation: string[]; // paragraphs — rendered one <p> each
+  example?: string;      // code snippet, rendered in <pre><code>
+  whyItMatters: string;
+  pitfalls: string[];    // common mistakes / misconceptions
+  docsUrl?: string;      // angular.dev deep link
+  sinceVersion: string;  // mirrors Question.sinceVersion
 }
 
 export interface EvaluationResult {

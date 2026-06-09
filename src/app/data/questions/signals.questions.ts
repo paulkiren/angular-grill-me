@@ -13,6 +13,7 @@ export const signalsQuestions: Question[] = [
     id: 'sig-1',
     topic: 'signals',
     title: 'Signals vs Observables',
+    conceptId: 'concept-signals-vs-observables',
     difficulty: 'Mid',
     questionType: 'multiple-choice',
     bloomLevel: 'analyze',
@@ -42,6 +43,7 @@ export const signalsQuestions: Question[] = [
     id: 'sig-2',
     topic: 'signals',
     title: 'computed() vs effect()',
+    conceptId: 'concept-computed-vs-effect',
     difficulty: 'Junior',
     questionType: 'multiple-choice',
     bloomLevel: 'understand',
@@ -70,6 +72,7 @@ export const signalsQuestions: Question[] = [
     id: 'sig-3',
     topic: 'signals',
     title: 'Signal Readability & Effects',
+    conceptId: 'concept-computed-vs-effect',
     difficulty: 'Mid',
     questionType: 'select-all',
     bloomLevel: 'understand',
@@ -138,5 +141,29 @@ export const signalsQuestions: Question[] = [
       { pattern: 'cleanup|destroy|unsubscri', term: 'subscription cleanup', label: 'Subscription managed automatically on destroy', weight: 2 },
       { pattern: 'migrat|gradual|incremental', term: 'migration strategy', label: 'Incremental RxJS-to-signals migration path', weight: 2 }
     ]
+  },
+  {
+    id: 'sig-6',
+    topic: 'signals',
+    title: 'Reading and writing a signal',
+    conceptId: 'concept-signal-basics',
+    difficulty: 'Junior',
+    questionType: 'multiple-choice',
+    bloomLevel: 'remember',
+    sinceVersion: '16.0',
+    assessmentEligible: true,
+    tags: ['signals', 'basics'],
+    questionText: 'Given `const count = signal(0);`, how do you read the current value and how do you change it?',
+    rubrics: ['call to read', 'set to write', 'update to derive'],
+    sampleAnswer:
+      'Read the value by calling the signal as a function: `count()`. Change it with `count.set(newValue)` to assign a new value, or `count.update(fn)` to compute the next value from the current one (e.g. `count.update(n => n + 1)`).',
+    options: [
+      'Read with `count.value`; write with `count.value = 5`.',
+      'Read with `count()`; write with `count.set(5)` or `count.update(n => n + 1)`.',
+      'Read with `count.get()`; write with `count.next(5)`.',
+      'Read with `count.read()`; write with `count.emit(5)`.'
+    ],
+    correctOptionIndex: 1,
+    timeLimit: 30
   }
 ];

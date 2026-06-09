@@ -11,6 +11,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/dashboard').then(m => m.DashboardComponent)
   },
   {
+    path: 'learn',
+    loadComponent: () => import('./components/learn').then(m => m.LearnComponent)
+  },
+  {
     path: 'interview',
     loadComponent: () => import('./components/interview').then(m => m.InterviewComponent)
   },
