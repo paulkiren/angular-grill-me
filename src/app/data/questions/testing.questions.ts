@@ -40,6 +40,7 @@ export const testingQuestions: Question[] = [
   },
   {
     id: 'tst-2',
+    conceptId: 'concept-testing-mocking',
     topic: 'testing',
     title: 'Mocking services in component tests',
     difficulty: 'Mid',

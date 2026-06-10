@@ -40,6 +40,7 @@ export const componentArchitectureQuestions: Question[] = [
   },
   {
     id: 'ca-2',
+    conceptId: 'concept-ca-lifecycle',
     topic: 'component-arch',
     title: 'input() signal vs @Input() decorator',
     difficulty: 'Mid',
@@ -90,6 +91,7 @@ export const componentArchitectureQuestions: Question[] = [
   },
   {
     id: 'ca-4',
+    conceptId: 'concept-ca-content-projection',
     topic: 'component-arch',
     title: 'Lifecycle hooks execution order',
     difficulty: 'Mid',

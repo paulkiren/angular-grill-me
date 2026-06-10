@@ -35,6 +35,7 @@ export const angularMigrationQuestions: Question[] = [
   },
   {
     id: 'am-2',
+    conceptId: 'concept-migration-signals',
     topic: 'angular-migration',
     title: 'Which migration step should come first?',
     difficulty: 'Mid',

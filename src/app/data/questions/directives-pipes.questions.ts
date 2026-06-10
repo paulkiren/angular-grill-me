@@ -40,6 +40,7 @@ export const directivesPipesQuestions: Question[] = [
   },
   {
     id: 'dp-2',
+    conceptId: 'concept-directives-custom-pipes',
     topic: 'directives-pipes',
     title: 'New control flow: @if, @for, @switch',
     difficulty: 'Junior',

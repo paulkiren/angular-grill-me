@@ -40,6 +40,7 @@ export const standaloneQuestions: Question[] = [
   },
   {
     id: 'sa-2',
+    conceptId: 'concept-standalone-bootstrapping',
     topic: 'standalone',
     title: 'bootstrapApplication vs platformBrowserDynamic',
     difficulty: 'Mid',

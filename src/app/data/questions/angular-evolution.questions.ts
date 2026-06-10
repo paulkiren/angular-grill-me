@@ -40,6 +40,7 @@ export const angularEvolutionQuestions: Question[] = [
   },
   {
     id: 'ae-2',
+    conceptId: 'concept-ae-ivy-advantages',
     topic: 'angular-evolution',
     title: 'Zoneless default and Signals first',
     difficulty: 'Senior',
