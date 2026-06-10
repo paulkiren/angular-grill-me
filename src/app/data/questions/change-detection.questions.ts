@@ -41,6 +41,7 @@ export const changeDetectionQuestions: Question[] = [
   },
   {
     id: 'cd-2',
+    conceptId: 'concept-cd-change-detector-ref',
     topic: 'change-detection',
     title: 'OnPush and Immutable Input References',
     difficulty: 'Senior',
@@ -64,6 +65,7 @@ export const changeDetectionQuestions: Question[] = [
   },
   {
     id: 'cd-3',
+    conceptId: 'concept-cd-zoneless',
     topic: 'change-detection',
     title: 'Zoneless change detection',
     difficulty: 'Senior',

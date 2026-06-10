@@ -40,6 +40,7 @@ export const dependencyInjectionQuestions: Question[] = [
   },
   {
     id: 'di-2',
+    conceptId: 'concept-di-hierarchical',
     topic: 'di',
     title: 'Hierarchical Dependency Injection',
     difficulty: 'Senior',
@@ -62,6 +63,7 @@ export const dependencyInjectionQuestions: Question[] = [
   },
   {
     id: 'di-3',
+    conceptId: 'concept-di-provided-in',
     topic: 'di',
     title: 'InjectionToken for typed configuration',
     difficulty: 'Mid',

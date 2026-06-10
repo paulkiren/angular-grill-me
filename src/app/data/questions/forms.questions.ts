@@ -69,6 +69,7 @@ export const formsQuestions: Question[] = [
   },
   {
     id: 'fm-3',
+    conceptId: 'concept-forms-validation',
     topic: 'forms',
     title: 'Async validators',
     difficulty: 'Mid',
@@ -120,6 +121,7 @@ export const formsQuestions: Question[] = [
   },
   {
     id: 'fm-5',
+    conceptId: 'concept-forms-value-changes',
     topic: 'forms',
     title: 'valueChanges for reactive UX',
     difficulty: 'Mid',

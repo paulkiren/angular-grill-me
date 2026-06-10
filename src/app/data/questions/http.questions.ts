@@ -40,6 +40,7 @@ export const httpQuestions: Question[] = [
   },
   {
     id: 'http-2',
+    conceptId: 'concept-http-interceptors',
     topic: 'http',
     title: 'HTTP interceptors',
     difficulty: 'Mid',
@@ -63,6 +64,7 @@ export const httpQuestions: Question[] = [
   },
   {
     id: 'http-3',
+    conceptId: 'concept-http-error-retry',
     topic: 'http',
     title: 'Error handling with catchError',
     difficulty: 'Mid',

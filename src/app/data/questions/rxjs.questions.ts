@@ -70,6 +70,7 @@ export const rxjsQuestions: Question[] = [
   },
   {
     id: 'rx-3',
+    conceptId: 'concept-rxjs-error-handling',
     topic: 'rxjs',
     title: 'Cancel HTTP requests with switchMap',
     difficulty: 'Senior',
@@ -93,6 +94,7 @@ export const rxjsQuestions: Question[] = [
   },
   {
     id: 'rx-4',
+    conceptId: 'concept-rxjs-subscription-teardown',
     topic: 'rxjs',
     title: 'Memory leak from unmanaged subscriptions',
     difficulty: 'Mid',

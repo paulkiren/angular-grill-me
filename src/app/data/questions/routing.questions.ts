@@ -68,6 +68,7 @@ export const routingQuestions: Question[] = [
   },
   {
     id: 'rt-3',
+    conceptId: 'concept-routing-guards',
     topic: 'routing',
     title: 'Functional route guards',
     difficulty: 'Mid',
@@ -96,6 +97,7 @@ export const routingQuestions: Question[] = [
   },
   {
     id: 'rt-4',
+    conceptId: 'concept-routing-resolvers',
     topic: 'routing',
     title: 'Route resolvers',
     difficulty: 'Mid',
