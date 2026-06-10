@@ -11,6 +11,7 @@ export const changeDetectionTopic = {
 export const changeDetectionQuestions: Question[] = [
   {
     id: 'cd-1',
+    conceptId: 'concept-cd-default-vs-onpush',
     topic: 'change-detection',
     title: 'OnPush Change Detection',
     difficulty: 'Mid',

@@ -11,6 +11,7 @@ export const rxjsTopic = {
 export const rxjsQuestions: Question[] = [
   {
     id: 'rx-1',
+    conceptId: 'concept-rxjs-subject-types',
     topic: 'rxjs',
     title: 'Subject vs BehaviorSubject',
     difficulty: 'Junior',
@@ -39,6 +40,7 @@ export const rxjsQuestions: Question[] = [
   },
   {
     id: 'rx-2',
+    conceptId: 'concept-rxjs-flattening-operators',
     topic: 'rxjs',
     title: 'switchMap vs mergeMap vs concatMap',
     difficulty: 'Mid',

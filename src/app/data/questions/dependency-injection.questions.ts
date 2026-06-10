@@ -11,6 +11,7 @@ export const dependencyInjectionTopic = {
 export const dependencyInjectionQuestions: Question[] = [
   {
     id: 'di-1',
+    conceptId: 'concept-di-inject-function',
     topic: 'di',
     title: 'inject() vs Constructor Injection',
     difficulty: 'Mid',
