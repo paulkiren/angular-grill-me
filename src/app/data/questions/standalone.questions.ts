@@ -11,6 +11,7 @@ export const standaloneTopic = {
 export const standaloneQuestions: Question[] = [
   {
     id: 'sa-1',
+    conceptId: 'concept-standalone-basics',
     topic: 'standalone',
     title: 'What standalone: true removes',
     difficulty: 'Junior',

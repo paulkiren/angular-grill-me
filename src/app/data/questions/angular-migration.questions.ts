@@ -11,6 +11,7 @@ export const angularMigrationTopic = {
 export const angularMigrationQuestions: Question[] = [
   {
     id: 'am-1',
+    conceptId: 'concept-migration-standalone',
     topic: 'angular-migration',
     title: 'Planning Angular upgrades from v13 to v21',
     difficulty: 'Senior',

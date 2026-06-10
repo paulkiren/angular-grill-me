@@ -11,6 +11,7 @@ export const componentArchitectureTopic = {
 export const componentArchitectureQuestions: Question[] = [
   {
     id: 'ca-1',
+    conceptId: 'concept-ca-input-output',
     topic: 'component-arch',
     title: 'Smart vs presentational components',
     difficulty: 'Mid',

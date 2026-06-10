@@ -11,6 +11,7 @@ export const directivesPipesTopic = {
 export const directivesPipesQuestions: Question[] = [
   {
     id: 'dp-1',
+    conceptId: 'concept-directives-attribute-vs-structural',
     topic: 'directives-pipes',
     title: 'Structural vs attribute directives',
     difficulty: 'Junior',

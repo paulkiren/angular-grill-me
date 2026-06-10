@@ -11,6 +11,7 @@ export const httpTopic = {
 export const httpQuestions: Question[] = [
   {
     id: 'http-1',
+    conceptId: 'concept-http-client-setup',
     topic: 'http',
     title: 'HttpClient typed responses',
     difficulty: 'Junior',

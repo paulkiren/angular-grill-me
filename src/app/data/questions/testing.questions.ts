@@ -11,6 +11,7 @@ export const testingTopic = {
 export const testingQuestions: Question[] = [
   {
     id: 'tst-1',
+    conceptId: 'concept-testing-testbed',
     topic: 'testing',
     title: 'TestBed.configureTestingModule',
     difficulty: 'Junior',

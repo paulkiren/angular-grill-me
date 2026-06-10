@@ -11,6 +11,7 @@ export const routingTopic = {
 export const routingQuestions: Question[] = [
   {
     id: 'rt-1',
+    conceptId: 'concept-routing-lazy-loading',
     topic: 'routing',
     title: 'ActivatedRoute: params vs queryParams',
     difficulty: 'Junior',

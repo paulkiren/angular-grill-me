@@ -11,6 +11,7 @@ export const angularEvolutionTopic = {
 export const angularEvolutionQuestions: Question[] = [
   {
     id: 'ae-1',
+    conceptId: 'concept-ae-major-milestones',
     topic: 'angular-evolution',
     title: 'Why standalone components arrived',
     difficulty: 'Mid',
