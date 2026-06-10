@@ -617,6 +617,7 @@ export class PlaygroundComponent {
     // Save in global StateService
     const attempt: ChallengeAttempt = {
       challengeId: challenge.id,
+      timestamp: Date.now(),
       code,
       isPassed: allPassed,
       score,

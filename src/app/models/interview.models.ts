@@ -105,6 +105,7 @@ export interface PlaygroundChallenge {
 
 export interface ChallengeAttempt {
   challengeId: string;
+  timestamp: number;
   code: string;
   isPassed: boolean;
   score: number;
