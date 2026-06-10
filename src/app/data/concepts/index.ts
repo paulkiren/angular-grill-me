@@ -4,12 +4,33 @@
 import { Concept, Question } from '../../models/interview.models';
 import { allQuestions } from '../questions/index';
 import { signalsConcepts } from './signals.concepts';
-
-// — Add new concept imports here as content grows —
-// import { changeDetectionConcepts } from './change-detection.concepts';
+import { rxjsConcepts } from './rxjs.concepts';
+import { changeDetectionConcepts } from './change-detection.concepts';
+import { dependencyInjectionConcepts } from './dependency-injection.concepts';
+import { routingConcepts } from './routing.concepts';
+import { formsConcepts } from './forms.concepts';
+import { httpConcepts } from './http.concepts';
+import { standaloneConcepts } from './standalone.concepts';
+import { directivesPipesConcepts } from './directives-pipes.concepts';
+import { componentArchitectureConcepts } from './component-architecture.concepts';
+import { testingConcepts } from './testing.concepts';
+import { angularEvolutionConcepts } from './angular-evolution.concepts';
+import { angularMigrationConcepts } from './angular-migration.concepts';
 
 export const allConcepts: Concept[] = [
   ...signalsConcepts,
+  ...rxjsConcepts,
+  ...changeDetectionConcepts,
+  ...dependencyInjectionConcepts,
+  ...routingConcepts,
+  ...formsConcepts,
+  ...httpConcepts,
+  ...standaloneConcepts,
+  ...directivesPipesConcepts,
+  ...componentArchitectureConcepts,
+  ...testingConcepts,
+  ...angularEvolutionConcepts,
+  ...angularMigrationConcepts,
 ];
 
 /** All practice questions linked to a given concept. Pure lookup — no state. */

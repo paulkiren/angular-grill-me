@@ -10,19 +10,16 @@ import { allConcepts, conceptsForTopic, topicsWithConcepts } from './index';
 export const LEARN_TOPIC_ORDER: string[] = [
   'angular-evolution',
   'standalone',
-  'component-architecture',
+  'component-arch',
   'directives-pipes',
   'signals',
   'change-detection',
-  'dependency-injection',
+  'di',
   'routing',
   'forms',
   'http',
   'rxjs',
   'testing',
-  'ssr',
-  'build',
-  'a11y-i18n',
   'angular-migration',
 ];
 
@@ -33,6 +30,14 @@ export const RELATED_TOPICS: Record<string, string[]> = {
   'change-detection': ['signals', 'component-arch'],
   rxjs: ['signals', 'http'],
   forms: ['signals', 'component-arch'],
+  routing: ['standalone', 'di'],
+  http: ['rxjs', 'di'],
+  standalone: ['component-arch', 'angular-evolution'],
+  'angular-migration': ['standalone', 'signals'],
+  testing: ['component-arch', 'rxjs'],
+  di: ['standalone', 'component-arch'],
+  'directives-pipes': ['component-arch', 'standalone'],
+  'angular-evolution': ['standalone', 'angular-migration'],
 };
 
 /** Topic ids that have concepts, sorted by LEARN_TOPIC_ORDER (unknown topics last). */
