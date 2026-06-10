@@ -29,10 +29,10 @@ export const LEARN_TOPIC_ORDER: string[] = [
 // "If you liked this, learn these next." Only entries that currently have concepts
 // will be surfaced, so this degrades gracefully as content grows.
 export const RELATED_TOPICS: Record<string, string[]> = {
-  signals: ['change-detection', 'rxjs', 'component-architecture'],
-  'change-detection': ['signals', 'component-architecture'],
+  signals: ['change-detection', 'rxjs', 'component-arch'],
+  'change-detection': ['signals', 'component-arch'],
   rxjs: ['signals', 'http'],
-  forms: ['signals', 'component-architecture'],
+  forms: ['signals', 'component-arch'],
 };
 
 /** Topic ids that have concepts, sorted by LEARN_TOPIC_ORDER (unknown topics last). */
