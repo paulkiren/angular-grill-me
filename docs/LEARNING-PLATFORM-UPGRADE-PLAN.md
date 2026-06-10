@@ -2,7 +2,7 @@
 
 **From assessment engine → complete guide for Angular learners**
 
-This document defines *how* Angular Grill-Me evolves from an interview-prep / assessment app into a
+This document defines *how* Angular Grill-Me evolves from a proficiency builder / assessment app into a
 self-contained learning platform. It is the **platform** counterpart to `docs/KNOWLEDGE-BASE-STRATEGY.md`
 (which governs *content*) and feeds the same release train (`ROADMAP.md`, v0.3.0 → v1.0.0+).
 

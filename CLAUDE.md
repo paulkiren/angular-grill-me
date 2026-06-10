@@ -18,7 +18,7 @@ npx vitest run src/app/app.spec.ts
 
 ## Architecture
 
-**Angular Grill Me** is an Angular interview prep simulator with topic-based quizzes, mock interviews, a coding playground, and performance analytics.
+**Angular Grill Me** is an Angular proficiency builder with topic-based quizzes, mock interview simulations, a coding playground, and performance analytics.
 
 ### Key Design Decisions
 

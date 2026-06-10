@@ -1,15 +1,18 @@
 # Angular Grill Me
 
-Angular Grill Me is a modern Angular interview prep application built with Angular 21. It delivers an interactive mock interview simulator, topic-based quizzes, performance analytics, and a developer playground for practicing and reviewing Angular concepts.
+**Angular Grill Me** is a browser-based Angular proficiency builder. Practice with topic quizzes, run mock interview simulations, solve coding challenges, and track your readiness score — all locally in your browser, no account needed.
+
+Live app: **https://paulkiren.github.io/angular-grill-me/**
 
 ## Key Features
 
-- **Mock Interview Simulator**: role-play technical screening scenarios, answer interview-style questions, and receive real-time feedback.
-- **Topic Matrix & Quizzes**: choose core Angular topics and complete quizzes with instant scoring and review explanations.
-- **Performance Dashboard**: view historical interview sessions, focus recommendations, and topic mastery analytics.
-- **Code Playground**: practice refactoring and Angular-specific code challenges.
-- **Theme Support**: light/dark mode persisted across sessions.
-- **Standalone Component Architecture**: uses Angular v21 standalone components and router lazy-loading.
+- **Mock Interview Simulator** — role-play technical screening scenarios with timed questions and real-time AI-assisted feedback.
+- **Skills Matrix & Quizzes** — pick any Angular topic, run a scored quiz, and review sample answers with concept explanations.
+- **Learn Mode** — read structured concept articles before attempting practice questions.
+- **Code Playground** — solve Angular refactoring challenges with automated pass/fail evaluation.
+- **Performance Analytics** — track your readiness score, session history, and per-topic mastery over time.
+- **100% local** — all progress is saved in your browser. No signup, no server, no data leaves your machine.
+- **Light / dark theme** — persisted across sessions.
 
 ## Tech Stack
 
@@ -58,24 +61,109 @@ npm run watch
 npm test
 ```
 
-### How to use the app
+## Deployment (GitHub Pages)
 
-1. Start the app with `npm start` and open `http://localhost:4200`.
-2. From the home screen, choose a topic card in the Skills Matrix.
-3. Click `Start Quiz` or `Retake Assessment` to begin.
-4. Answer each question in the quiz flow:
-   - For `multiple-choice`, click the option card.
-   - For `open-ended`, type your written response in the textarea.
-   - For `code-snippet`, review the displayed code block and explain the behavior in the answer field.
-5. Use the `Next Question` button to proceed and `Finish Quiz` on the last question.
-6. Review the result screen to see your score, question-by-question feedback, and the sample answer / technical context.
-7. Return to the Skills Matrix to retake quizzes, compare best scores, and track progress.
+Every push to `master` automatically builds and deploys via GitHub Actions (`.github/workflows/deploy.yml`).
 
-### New updated behavior
+**First-time setup:**
 
-- The topic quiz now supports richer question types, including `open-ended` and `code-snippet` items.
-- Open-ended answers are evaluated by concept matchers and feedback is provided in the review screen.
-- Code-snippet questions display example source code and still use the open-ended answer input for evaluation.
+1. Push this repo to GitHub (if not already done).
+2. Go to **Settings → Pages** in your GitHub repo.
+3. Under **Source**, select **GitHub Actions**.
+4. Push any commit to `master` — the workflow builds and deploys automatically.
+
+The live URL will be: `https://<your-github-username>.github.io/angular-grill-me/`
+
+**How the deploy works:**
+
+- Builds with `--base-href /angular-grill-me/` so asset paths resolve correctly at the sub-path.
+- Copies `index.html` → `404.html` so Angular's client-side router handles direct URL loads (e.g. `/learn`, `/interview`).
+- Adds `.nojekyll` so GitHub Pages doesn't process Angular's `_` prefixed files.
+
+**To deploy a different branch or trigger manually:**
+
+Go to **Actions → Deploy to GitHub Pages → Run workflow** in the GitHub UI.
+
+## User Guide
+
+### Getting started
+
+Open the app (live or locally) and you'll land on the **Dashboard** — your home base showing your current Readiness Score and quick links to every mode.
+
+---
+
+### Readiness Score
+
+The score in the top-right header (and on the Dashboard) is a weighted composite:
+
+| Activity | Weight |
+|---|---|
+| Mock Interview sessions | 40% |
+| Playground challenges passed | 40% |
+| Topic quiz coverage | 20% |
+
+Quiz weight rewards breadth — scoring high on a few topics won't max it out. Work across all 13 topics to push it higher.
+
+> **Important:** your score is stored only in this browser. Clearing site data or using a different browser/device starts fresh.
+
+---
+
+### Learn
+
+Go here first if a topic is unfamiliar. Each concept card has:
+- A plain-English explanation
+- A code example
+- Common pitfalls
+- A link to official Angular docs
+
+Click **Mark as Learned** to track which concepts you've covered. This does not affect your Readiness Score — it's a personal checklist.
+
+---
+
+### Skills Matrix (Quizzes)
+
+1. Select a topic card.
+2. Click **Start Quiz** (or **Retake** if you've done it before — retakes always keep your best score).
+3. Answer each question:
+   - **Multiple choice** — click the option you want, then confirm.
+   - **Open-ended** — type your answer in the textarea; it's evaluated against key concept keywords.
+   - **Code snippet** — read the code block shown above, then explain what it does or what's wrong with it.
+   - **Select all** — tick every correct option before confirming.
+4. Click **Finish Quiz** on the last question.
+5. The review screen shows your score, per-question feedback, and the sample answer for each item.
+
+Your best percentage per topic is saved and shown as a badge on the topic card.
+
+---
+
+### Mock Interview Simulator
+
+1. Go to **Simulator** and choose a difficulty: Junior, Mid, or Senior.
+2. A set of timed questions is drawn from across all topics.
+3. Answer each one within the time limit — the timer is advisory, not enforced.
+4. At the end, optionally paste a **Gemini API key** to get AI-powered feedback on top of the local rubric scoring.
+5. Your session is saved to **Analytics** automatically.
+
+---
+
+### Playground (Coding Challenges)
+
+1. Go to **Playground** and pick a challenge.
+2. Edit the code in the editor to fix or refactor it per the instructions.
+3. Click **Run Tests** — the evaluator checks your code against solution patterns and anti-pattern rules.
+4. A pass/fail result and feedback are shown inline. Passed challenges are counted in your Readiness Score.
+
+---
+
+### Analytics
+
+Shows your full history:
+- Readiness Score trend
+- All past interview sessions with per-question breakdowns
+- Challenge attempt results
+- Topic quiz best scores and coverage gaps
+
+Use the **Reset Progress** button at the bottom to wipe all stored data and start over.
 
 ### Manual test scenarios
 
@@ -204,9 +292,9 @@ This project is organized around a lightweight Angular app using standalone comp
 
 ## Recommended Improvements
 
-- add end-to-end test coverage
-- introduce issue and PR templates for contributor workflows
-- add a `LICENSE` file if this repository will be shared publicly
+- Add end-to-end test coverage (Playwright is a good fit for the quiz flows)
+- Add issue and PR templates for contributor workflows
+- Add a `LICENSE` file before sharing publicly
 
 ## Contributing
 
