@@ -12,6 +12,7 @@ export class StateService {
     readinessScore: 0,
     completedQuizzes: {},
     completedChallenges: {},
+    learnedConcepts: {},
     history: { interviews: [], challenges: [] }
   });
 
@@ -19,6 +20,7 @@ export class StateService {
   public readonly progress = computed(() => this._progress());
   public readonly history = computed(() => this._progress().history);
   public readonly readinessScore = computed(() => this._progress().readinessScore);
+  public readonly learnedConcepts = computed(() => this._progress().learnedConcepts);
 
   // Static decoupled arrays registries
   public readonly challenges: PlaygroundChallenge[] = challengesData;
@@ -55,6 +57,7 @@ export class StateService {
           readinessScore: compressed.readinessScore || 0,
           completedQuizzes: compressed.completedQuizzes || {},
           completedChallenges: compressed.completedChallenges || {},
+          learnedConcepts: compressed.learnedConcepts || {},
           history: {
             interviews: hydratedInterviews,
             challenges: compressed.history?.challenges || []
@@ -69,6 +72,7 @@ export class StateService {
       if (legacy) {
         try {
           const parsed = JSON.parse(legacy);
+          parsed.learnedConcepts = parsed.learnedConcepts || {};
           this._progress.set(parsed);
           localStorage.removeItem('angular_grill_me_progress'); // Clear legacy format
         } catch (e) {}
@@ -95,6 +99,7 @@ export class StateService {
         readinessScore: current.readinessScore,
         completedQuizzes: current.completedQuizzes,
         completedChallenges: current.completedChallenges,
+        learnedConcepts: current.learnedConcepts,
         history: {
           interviews: compressedInterviews,
           challenges: current.history.challenges
@@ -172,11 +177,42 @@ export class StateService {
     }));
   }
 
+  // FEAT-001: learning progress (intentionally separate from readiness scoring)
+  public markConceptLearned(conceptId: string): void {
+    this._progress.update(prev =>
+      prev.learnedConcepts[conceptId]
+        ? prev
+        : { ...prev, learnedConcepts: { ...prev.learnedConcepts, [conceptId]: Date.now() } }
+    );
+  }
+
+  public unmarkConceptLearned(conceptId: string): void {
+    this._progress.update(prev => {
+      if (!prev.learnedConcepts[conceptId]) return prev;
+      const next = { ...prev.learnedConcepts };
+      delete next[conceptId];
+      return { ...prev, learnedConcepts: next };
+    });
+  }
+
+  public toggleConceptLearned(conceptId: string): void {
+    if (this._progress().learnedConcepts[conceptId]) {
+      this.unmarkConceptLearned(conceptId);
+    } else {
+      this.markConceptLearned(conceptId);
+    }
+  }
+
+  public isConceptLearned(conceptId: string): boolean {
+    return !!this._progress().learnedConcepts[conceptId];
+  }
+
   public resetProgress(): void {
     const cleared: UserProgress = {
       readinessScore: 0,
       completedQuizzes: {},
       completedChallenges: {},
+      learnedConcepts: {},
       history: { interviews: [], challenges: [] }
     };
     this._progress.set(cleared);

@@ -3,6 +3,7 @@
 // as content grows, so the coverage promise can't silently rot.
 import { allConcepts, questionsForConcept } from './index';
 import { allQuestions, allTopics } from '../questions/index';
+import { LEARN_TOPIC_ORDER, RELATED_TOPICS } from './learning-path';
 
 describe('Concept layer integrity (FEAT-001)', () => {
   it('has unique concept ids', () => {
@@ -42,5 +43,29 @@ describe('Concept layer integrity (FEAT-001)', () => {
       c => !c.summary || c.explanation.length === 0 || !c.whyItMatters,
     );
     expect(incomplete.map(c => c.id)).toEqual([]);
+  });
+});
+
+describe('Learning-path config integrity (FEAT-001)', () => {
+  const topicIds = new Set(allTopics.map(t => t.id));
+
+  it('every topic that has concepts is placed in LEARN_TOPIC_ORDER', () => {
+    const order = new Set(LEARN_TOPIC_ORDER);
+    const conceptTopics = [...new Set(allConcepts.map(c => c.topic))];
+    const missing = conceptTopics.filter(t => !order.has(t));
+    expect(missing).toEqual([]);
+  });
+
+  it('LEARN_TOPIC_ORDER has no duplicates', () => {
+    expect(new Set(LEARN_TOPIC_ORDER).size).toBe(LEARN_TOPIC_ORDER.length);
+  });
+
+  it('RELATED_TOPICS keys and values reference real topics', () => {
+    const bad: string[] = [];
+    for (const [key, related] of Object.entries(RELATED_TOPICS)) {
+      if (!topicIds.has(key)) bad.push(key);
+      related.forEach(r => { if (!topicIds.has(r)) bad.push(r); });
+    }
+    expect(bad).toEqual([]);
   });
 });
