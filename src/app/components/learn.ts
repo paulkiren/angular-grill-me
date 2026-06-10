@@ -16,21 +16,54 @@ import {
 } from '../data/concepts/learning-path';
 import { ConceptRendererComponent } from './renderers/concept-renderer';
 
-/**
- * FEAT-001 (v0.3.0 / WS1) — the "Learn before you're tested" surface.
- * Concepts are grouped into ordered "parts" (fullstackopen-style), with per-concept,
- * per-topic and overall completion tracking, a resume button, and "up next" / related
- * encouragement. Completion is an explicit user toggle and does NOT affect Readiness.
- */
+type QuizState = 'idle' | 'asking' | 'correct' | 'wrong' | 'open-answered';
+
 @Component({
   selector: 'app-learn',
   imports: [CommonModule, ConceptRendererComponent],
   template: `
     <div class="learn-wrapper fade-in">
+
+      <!-- XP burst overlay -->
+      @if (xpBurst()) {
+        <div class="xp-burst-overlay" (animationend)="xpBurst.set(null)">
+          <div class="xp-burst">{{ xpBurst() }}</div>
+        </div>
+      }
+
+      <!-- Topic completion celebration -->
+      @if (topicCelebration()) {
+        <div class="topic-celebration" (animationend)="topicCelebration.set(null)">
+          <span class="celebration-emoji">🎉</span>
+          <span class="celebration-text">{{ topicCelebration() }} complete!</span>
+        </div>
+      }
+
       @if (view() === 'browse') {
         <section class="intro-bar">
           <h1 class="page-title">Learn</h1>
-          <p class="page-subtitle">Read the concept first, then practice it. Work through the parts in order — or jump to whatever you need.</p>
+          <p class="page-subtitle">Read the concept first, then prove it. Work through the parts in order — or jump to whatever you need.</p>
+        </section>
+
+        <!-- XP / Level / Streak bar -->
+        <section class="gamebar panel">
+          <div class="gamebar-left">
+            <div class="level-badge">Lv {{ state.level() }}</div>
+            <div class="xp-col">
+              <div class="xp-label-row">
+                <span class="xp-label">XP</span>
+                <span class="xp-count">{{ state.xp() }} / {{ xpNext() }}</span>
+              </div>
+              <div class="bar">
+                <div class="bar-fill bar-xp" [style.width.%]="xpPct()"></div>
+              </div>
+            </div>
+          </div>
+          <div class="gamebar-right">
+            <div class="streak-pill" [class.streak-active]="state.streak().count > 0">
+              🔥 {{ state.streak().count }} day streak
+            </div>
+          </div>
         </section>
 
         @if (totalConcepts > 0) {
@@ -82,7 +115,10 @@ import { ConceptRendererComponent } from './renderers/concept-renderer';
                     }
                   </div>
                   <p class="card-summary">{{ concept.summary }}</p>
-                  <span class="card-meta">{{ linkedCount(concept.id) }} practice question{{ linkedCount(concept.id) === 1 ? '' : 's' }}</span>
+                  <div class="card-footer">
+                    <span class="card-meta">{{ linkedCount(concept.id) }} practice question{{ linkedCount(concept.id) === 1 ? '' : 's' }}</span>
+                    <span class="card-xp">+50 XP</span>
+                  </div>
                 </div>
               }
             </div>
@@ -94,14 +130,87 @@ import { ConceptRendererComponent } from './renderers/concept-renderer';
 
           <app-concept-renderer [concept]="activeConcept()!"></app-concept-renderer>
 
-          <div class="learned-toggle-row">
-            <button class="btn"
-                    [class.btn-primary]="!isLearned(activeConcept()!.id)"
-                    [class.btn-secondary]="isLearned(activeConcept()!.id)"
-                    (click)="toggleLearned(activeConcept()!)">
-              {{ isLearned(activeConcept()!.id) ? '✓ Learned — tap to undo' : 'Mark as learned' }}
-            </button>
-          </div>
+          <!-- Inline quiz or Mark-as-learned -->
+          @if (quizState() === 'idle') {
+            <div class="learned-toggle-row">
+              <button class="btn"
+                      [class.btn-primary]="!isLearned(activeConcept()!.id)"
+                      [class.btn-secondary]="isLearned(activeConcept()!.id)"
+                      (click)="onMarkLearned(activeConcept()!)">
+                {{ isLearned(activeConcept()!.id) ? '✓ Learned — tap to undo' : 'Mark as learned · +50 XP' }}
+              </button>
+            </div>
+          }
+
+          <!-- MCQ / select-all quiz challenge -->
+          @if (quizState() === 'asking' && quizQuestion()) {
+            <section class="quiz-challenge panel">
+              <div class="quiz-header">
+                <span class="quiz-badge">Quick check</span>
+                <span class="quiz-xp-hint">Answer correctly for +{{ bonusXp }} XP</span>
+              </div>
+              <p class="quiz-q">{{ quizQuestion()!.questionText }}</p>
+
+              @if (quizQuestion()!.questionType === 'multiple-choice') {
+                <div class="quiz-options">
+                  @for (opt of quizQuestion()!.options; track $index; let i = $index) {
+                    <button class="quiz-opt" [class.selected]="selectedOption() === i"
+                            (click)="selectedOption.set(i)">
+                      <span class="opt-letter">{{ optLetter(i) }}</span>
+                      <span>{{ opt }}</span>
+                    </button>
+                  }
+                </div>
+                <button class="btn btn-primary quiz-submit"
+                        [disabled]="selectedOption() === null"
+                        (click)="submitMcq()">Submit answer</button>
+              }
+
+              @if (quizQuestion()!.questionType === 'open-ended') {
+                <textarea class="quiz-textarea" rows="4"
+                          [placeholder]="quizQuestion()!.answerPlaceholder || 'Type your answer…'"
+                          (input)="openAnswer.set($any($event.target).value)"></textarea>
+                <button class="btn btn-primary quiz-submit"
+                        [disabled]="openAnswer().trim().length < 10"
+                        (click)="submitOpen()">Submit answer</button>
+              }
+            </section>
+          }
+
+          <!-- MCQ result feedback -->
+          @if (quizState() === 'correct') {
+            <section class="quiz-result correct panel">
+              <span class="result-icon">✓</span>
+              <div class="result-body">
+                <strong>Correct! +{{ bonusXp }} XP earned</strong>
+                <p>{{ quizQuestion()!.sampleAnswer }}</p>
+              </div>
+              <button class="btn btn-primary" (click)="dismissQuiz()">Continue →</button>
+            </section>
+          }
+
+          @if (quizState() === 'wrong') {
+            <section class="quiz-result wrong panel">
+              <span class="result-icon">✗</span>
+              <div class="result-body">
+                <strong>Not quite.</strong>
+                <p>{{ quizQuestion()!.sampleAnswer }}</p>
+              </div>
+              <button class="btn btn-secondary" (click)="dismissQuiz()">Continue</button>
+            </section>
+          }
+
+          @if (quizState() === 'open-answered') {
+            <section class="quiz-result correct panel">
+              <span class="result-icon">✓</span>
+              <div class="result-body">
+                <strong>Answer recorded · +{{ bonusXp }} XP earned</strong>
+                <p class="sample-label">Sample answer:</p>
+                <p>{{ quizQuestion()!.sampleAnswer }}</p>
+              </div>
+              <button class="btn btn-primary" (click)="dismissQuiz()">Continue →</button>
+            </section>
+          }
 
           @if (linkedQuestions().length) {
             <section class="practice-block">
@@ -156,6 +265,7 @@ import { ConceptRendererComponent } from './renderers/concept-renderer';
     .learn-wrapper {
       max-width: 900px;
       margin: 0 auto;
+      position: relative;
     }
 
     .intro-bar {
@@ -177,6 +287,143 @@ import { ConceptRendererComponent } from './renderers/concept-renderer';
     .empty {
       color: var(--text-secondary);
       text-align: center;
+    }
+
+    /* XP burst overlay */
+    .xp-burst-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .xp-burst {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--color-accent);
+      animation: burstPop 1.2s ease-out forwards;
+    }
+
+    @keyframes burstPop {
+      0%   { transform: scale(0.4); opacity: 1; }
+      60%  { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(1.6) translateY(-60px); opacity: 0; }
+    }
+
+    /* Topic celebration banner */
+    .topic-celebration {
+      position: fixed;
+      top: 72px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--color-success);
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 999px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      z-index: 1000;
+      animation: celebrationSlide 2.4s ease-out forwards;
+      pointer-events: none;
+    }
+
+    .celebration-emoji {
+      font-size: 1.4rem;
+    }
+
+    @keyframes celebrationSlide {
+      0%   { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+      15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+      75%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-16px); }
+    }
+
+    /* Gamebar */
+    .gamebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+
+    .gamebar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .level-badge {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      color: var(--text-on-accent);
+      font-size: 0.85rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .xp-col {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .xp-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .xp-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-accent);
+    }
+
+    .xp-count {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .bar-xp {
+      background: linear-gradient(90deg, var(--color-accent), #a78bfa);
+      transition: width 0.6s cubic-bezier(.4,0,.2,1);
+    }
+
+    .streak-pill {
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .streak-pill.streak-active {
+      border-color: #f97316;
+      color: #f97316;
+      background: rgba(249,115,22,0.08);
     }
 
     /* Overall progress card */
@@ -233,7 +480,7 @@ import { ConceptRendererComponent } from './renderers/concept-renderer';
       transition: width var(--transition-fast);
     }
 
-    /* Topic "part" group */
+    /* Topic group */
     .topic-group {
       margin-bottom: 32px;
     }
@@ -331,10 +578,25 @@ import { ConceptRendererComponent } from './renderers/concept-renderer';
       flex-grow: 1;
     }
 
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     .card-meta {
       font-size: 0.82rem;
       font-weight: 600;
       color: var(--text-secondary);
+    }
+
+    .card-xp {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--color-accent);
+      background: rgba(var(--color-accent-rgb, 99,102,241), 0.08);
+      padding: 2px 8px;
+      border-radius: 999px;
     }
 
     /* Concept detail */
@@ -358,6 +620,157 @@ import { ConceptRendererComponent } from './renderers/concept-renderer';
       font-weight: 700;
       display: block;
       margin-bottom: 8px;
+    }
+
+    /* Inline quiz */
+    .quiz-challenge {
+      border: 2px solid var(--color-accent);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .quiz-badge {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-accent);
+      background: rgba(var(--color-accent-rgb, 99,102,241), 0.1);
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .quiz-xp-hint {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .quiz-q {
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .quiz-opt {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      text-align: left;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all var(--transition-fast);
+    }
+
+    .quiz-opt:hover {
+      border-color: var(--color-accent);
+    }
+
+    .quiz-opt.selected {
+      border-color: var(--color-accent);
+      background: rgba(var(--color-accent-rgb, 99,102,241), 0.08);
+      font-weight: 600;
+    }
+
+    .opt-letter {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .quiz-opt.selected .opt-letter {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: var(--text-on-accent);
+    }
+
+    .quiz-textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      resize: vertical;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .quiz-textarea:focus {
+      outline: none;
+      border-color: var(--color-accent);
+    }
+
+    .quiz-submit {
+      align-self: flex-start;
+    }
+
+    .quiz-result {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .quiz-result.correct {
+      border-color: var(--color-success);
+    }
+
+    .quiz-result.wrong {
+      border-color: var(--color-danger);
+    }
+
+    .result-icon {
+      font-size: 1.4rem;
+      font-weight: 900;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .quiz-result.correct .result-icon { color: var(--color-success); }
+    .quiz-result.wrong .result-icon   { color: var(--color-danger); }
+
+    .result-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .sample-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      margin-top: 4px;
     }
 
     .practice-block, .upnext, .related {
@@ -479,6 +892,17 @@ import { ConceptRendererComponent } from './renderers/concept-renderer';
         flex-direction: column;
         align-items: flex-start;
       }
+      .gamebar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .gamebar-right {
+        display: flex;
+        justify-content: flex-end;
+      }
+      .quiz-result {
+        flex-direction: column;
+      }
     }
   `]
 })
@@ -489,11 +913,21 @@ export class LearnComponent {
   public readonly view = signal<'browse' | 'concept'>('browse');
   public readonly activeConcept = signal<Concept | null>(null);
 
-  // Content is static at runtime — compute ordering once.
+  // Quiz state
+  public readonly quizState = signal<QuizState>('idle');
+  public readonly quizQuestion = signal<Question | null>(null);
+  public readonly selectedOption = signal<number | null>(null);
+  public readonly openAnswer = signal<string>('');
+  public readonly bonusXp = 100;
+
+  // Celebration signals
+  public readonly xpBurst = signal<string | null>(null);
+  public readonly topicCelebration = signal<string | null>(null);
+
+  // Content ordering
   public readonly orderedTopics = orderedTopicIdsWithConcepts();
   public readonly totalConcepts = totalConceptCount();
 
-  // Reactive learned-state map (conceptId -> timestamp).
   private readonly learnedMap = computed(() => this.state.learnedConcepts());
 
   public readonly learnedCount = computed(() => {
@@ -519,18 +953,12 @@ export class LearnComponent {
     const c = this.activeConcept();
     if (!c) return null;
     const m = this.learnedMap();
-
-    // Prefer the next unlearned concept in the same topic.
     const sameTopicNext = conceptsForTopic(c.topic).find(x => x.id !== c.id && !m[x.id]);
     if (sameTopicNext) return { concept: sameTopicNext, sameTopic: true };
-
-    // Otherwise the next unlearned concept along the ordered path.
     const flat = orderedConcepts();
     const pos = flat.findIndex(x => x.id === c.id);
     const after = flat.slice(pos + 1).find(x => !m[x.id]);
     if (after) return { concept: after, sameTopic: after.topic === c.topic };
-
-    // Fall back to any remaining unlearned concept.
     const any = flat.find(x => x.id !== c.id && !m[x.id]);
     return any ? { concept: any, sameTopic: any.topic === c.topic } : null;
   });
@@ -540,7 +968,16 @@ export class LearnComponent {
     return c ? relatedTopicsWithConcepts(c.topic) : [];
   });
 
-  // — Per-topic + per-concept helpers (read learnedMap() so they stay reactive) —
+  // XP / level helpers
+  public xpPct = computed(() => {
+    const base = this.state.xpForCurrentLevel();
+    const next = this.state.xpForNextLevel();
+    return Math.round(((this.state.xp() - base) / next) * 100);
+  });
+
+  public xpNext = computed(() => this.state.xpForCurrentLevel() + this.state.xpForNextLevel());
+
+  // Per-topic helpers
   public isLearned(conceptId: string): boolean {
     return !!this.learnedMap()[conceptId];
   }
@@ -572,10 +1009,18 @@ export class LearnComponent {
     return this.state.quizTopics.find(t => t.id === topicId)?.title || topicId;
   }
 
-  // — Navigation / actions —
+  public optLetter(i: number): string {
+    return String.fromCharCode(65 + i);
+  }
+
+  // Navigation
   public openConcept(concept: Concept): void {
     this.activeConcept.set(concept);
     this.view.set('concept');
+    this.quizState.set('idle');
+    this.quizQuestion.set(null);
+    this.selectedOption.set(null);
+    this.openAnswer.set('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -587,6 +1032,67 @@ export class LearnComponent {
   public backToBrowse(): void {
     this.view.set('browse');
     this.activeConcept.set(null);
+    this.quizState.set('idle');
+    this.quizQuestion.set(null);
+  }
+
+  public onMarkLearned(concept: Concept): void {
+    if (this.isLearned(concept.id)) {
+      this.state.toggleConceptLearned(concept.id);
+      return;
+    }
+
+    // Pick one MCQ or open-ended question linked to this concept for the quiz.
+    const candidates = questionsForConcept(concept.id).filter(
+      q => (q.questionType === 'multiple-choice' || q.questionType === 'open-ended')
+        && q.assessmentEligible
+    );
+
+    if (candidates.length > 0) {
+      const q = candidates[Math.floor(Math.random() * candidates.length)];
+      this.quizQuestion.set(q);
+      this.quizState.set('asking');
+      this.selectedOption.set(null);
+      this.openAnswer.set('');
+    } else {
+      // No suitable quiz question — just mark and reward.
+      this.commitLearned(concept);
+    }
+  }
+
+  public submitMcq(): void {
+    const q = this.quizQuestion();
+    const sel = this.selectedOption();
+    if (!q || sel === null) return;
+
+    this.state.toggleConceptLearned(q.conceptId!); // mark learned (fires streak + 50 XP)
+    const correct = sel === q.correctOptionIndex;
+    if (correct) {
+      this.state.awardXp(this.bonusXp);
+      this.fireXpBurst(`+${50 + this.bonusXp} XP`);
+      this.quizState.set('correct');
+    } else {
+      this.fireXpBurst('+50 XP');
+      this.quizState.set('wrong');
+    }
+    this.checkTopicComplete(q.topic);
+  }
+
+  public submitOpen(): void {
+    const q = this.quizQuestion();
+    if (!q) return;
+    this.state.toggleConceptLearned(q.conceptId!);
+    this.state.awardXp(this.bonusXp);
+    this.fireXpBurst(`+${50 + this.bonusXp} XP`);
+    this.quizState.set('open-answered');
+    this.checkTopicComplete(q.topic);
+  }
+
+  public dismissQuiz(): void {
+    this.quizState.set('idle');
+    this.quizQuestion.set(null);
+    this.selectedOption.set(null);
+    this.openAnswer.set('');
   }
 
   public toggleLearned(concept: Concept): void {
@@ -594,8 +1100,23 @@ export class LearnComponent {
   }
 
   public goPractice(): void {
-    // Slice scope: hand off to the existing practice surface.
-    // Deep-linking straight to the linked question is deferred to WS3 (v0.5.0).
     this.router.navigate(['/topic-matrix']);
+  }
+
+  private commitLearned(concept: Concept): void {
+    this.state.markConceptLearned(concept.id);
+    this.fireXpBurst('+50 XP');
+    this.checkTopicComplete(concept.topic);
+  }
+
+  private fireXpBurst(label: string): void {
+    this.xpBurst.set(label);
+  }
+
+  private checkTopicComplete(topicId: string): void {
+    if (this.topicComplete(topicId)) {
+      const title = this.topicTitle(topicId);
+      this.topicCelebration.set(title);
+    }
   }
 }

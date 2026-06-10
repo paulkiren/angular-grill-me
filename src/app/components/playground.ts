@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StateService } from '../services/state.service';
 import { PlaygroundChallenge, ChallengeAttempt } from '../models/interview.models';
+import { XpBurstComponent } from './shared/xp-burst.component';
 
 @Component({
   selector: 'app-playground',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, XpBurstComponent],
   template: `
     <div class="playground-wrapper fade-in">
       @if (activePanel() === 'browse') {

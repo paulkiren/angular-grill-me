@@ -4,11 +4,13 @@ import { StateService } from '../services/state.service';
 import { EvaluationService } from '../services/evaluation.service';
 import { InterviewSession, Question, EvaluationResult } from '../models/interview.models';
 import { QuestionRendererComponent } from './renderers/question-renderer';
+import { XpBurstComponent } from './shared/xp-burst.component';
 
 @Component({
   selector: 'app-topic-matrix',
-  imports: [CommonModule, QuestionRendererComponent],
+  imports: [CommonModule, QuestionRendererComponent, XpBurstComponent],
   template: `
+    <app-xp-burst [label]="xpBurst()" (dismissed)="xpBurst.set(null)"></app-xp-burst>
     <div class="matrix-wrapper fade-in">
       @if (activeQuizState() === 'browse') {
         <!-- Topic Selection Screen -->

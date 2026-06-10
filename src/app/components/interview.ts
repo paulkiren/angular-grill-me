@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StateService } from '../services/state.service';
 import { EvaluationService } from '../services/evaluation.service';
+import { XpBurstComponent } from './shared/xp-burst.component';
 import { Question, InterviewSession, EvaluationResult } from '../models/interview.models';
 
 @Component({
   selector: 'app-interview',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, XpBurstComponent],
   template: `
     <div class="interview-wrapper fade-in">
       @if (sessionState() === 'setup') {

@@ -1,12 +1,49 @@
 import { Component, inject, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { StateService } from '../services/state.service';
+import { XpBurstComponent } from './shared/xp-burst.component';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink],
+  imports: [RouterLink, XpBurstComponent],
   template: `
     <div class="dashboard-wrapper fade-in">
+      <!-- Stats / Gamification HUD -->
+      <section class="gamebar panel">
+        <div class="gamebar-level">
+          <div class="level-badge">Lv {{ state.level() }}</div>
+          <div class="xp-col">
+            <div class="xp-label-row">
+              <span class="xp-label">XP</span>
+              <span class="xp-count">{{ state.xp() }} · Next level at {{ xpNext() }}</span>
+            </div>
+            <div class="xp-bar-track">
+              <div class="xp-bar-fill" [style.width.%]="xpPct()"></div>
+            </div>
+          </div>
+        </div>
+        <div class="gamebar-stats">
+          <div class="hud-stat">
+            <span class="hud-val">{{ mockInterviewsCount() }}</span>
+            <span class="hud-lbl">Interviews</span>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-val">{{ challengesCount() }}</span>
+            <span class="hud-lbl">Challenges</span>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-val">{{ quizzesCount() }}</span>
+            <span class="hud-lbl">Quizzes</span>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-val streak-val" [class.active]="state.streak().count > 0">
+              🔥 {{ state.streak().count }}
+            </span>
+            <span class="hud-lbl">Day streak</span>
+          </div>
+        </div>
+      </section>
+
       <!-- Hero Welcome Banner -->
       <section class="hero-section panel">
         <div class="hero-grid">
@@ -38,21 +75,6 @@ import { StateService } from '../services/state.service';
         </div>
       </section>
 
-      <!-- Stats Grid -->
-      <section class="stats-grid">
-        <div class="stat-card panel">
-          <span class="stat-value">{{ mockInterviewsCount() }}</span>
-          <span class="stat-label">Mock Interviews Run</span>
-        </div>
-        <div class="stat-card panel">
-          <span class="stat-value">{{ challengesCount() }}</span>
-          <span class="stat-label">Challenges Solved</span>
-        </div>
-        <div class="stat-card panel">
-          <span class="stat-value">{{ quizzesCount() }}</span>
-          <span class="stat-label">Quizzes Completed</span>
-        </div>
-      </section>
 
       <!-- Core Features Hub -->
       <section class="features-hub">
@@ -115,6 +137,115 @@ import { StateService } from '../services/state.service';
       display: flex;
       flex-direction: column;
       gap: 32px;
+    }
+
+    /* Gamification HUD */
+    .gamebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 16px 24px;
+      flex-wrap: wrap;
+    }
+
+    .gamebar-level {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .level-badge {
+      flex-shrink: 0;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      color: var(--text-on-accent);
+      font-size: 0.88rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .xp-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .xp-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .xp-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-accent);
+    }
+
+    .xp-count {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .xp-bar-track {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--bg-input);
+      overflow: hidden;
+    }
+
+    .xp-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--color-accent), #a78bfa);
+      transition: width 0.7s cubic-bezier(.4,0,.2,1);
+    }
+
+    .gamebar-stats {
+      display: flex;
+      gap: 28px;
+      flex-shrink: 0;
+    }
+
+    .hud-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .hud-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--color-accent);
+      line-height: 1;
+    }
+
+    .hud-val.streak-val {
+      color: var(--text-secondary);
+    }
+
+    .hud-val.streak-val.active {
+      color: #f97316;
+    }
+
+    .hud-lbl {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .hero-section {
@@ -203,35 +334,6 @@ import { StateService } from '../services/state.service';
       margin-top: 12px;
     }
 
-    /* Stats Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-
-    .stat-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px;
-      text-align: center;
-    }
-
-    .stat-value {
-      font-family: var(--font-heading);
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: var(--color-accent);
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-    }
 
     /* Features Hub */
     .section-heading {
@@ -352,17 +454,26 @@ import { StateService } from '../services/state.service';
 export class DashboardComponent {
   public readonly state = inject(StateService);
 
-  // Computed properties
-  public readonly mockInterviewsCount = computed(() => 
+  public readonly mockInterviewsCount = computed(() =>
     this.state.history().interviews.filter(i => i.isCompleted).length
   );
 
-  public readonly challengesCount = computed(() => 
+  public readonly challengesCount = computed(() =>
     this.state.history().challenges.filter(c => c.isPassed).length
   );
 
-  public readonly quizzesCount = computed(() => 
+  public readonly quizzesCount = computed(() =>
     Object.keys(this.state.progress().completedQuizzes).length
+  );
+
+  public readonly xpPct = computed(() => {
+    const base = this.state.xpForCurrentLevel();
+    const size = this.state.xpForNextLevel();
+    return Math.min(100, Math.round(((this.state.xp() - base) / size) * 100));
+  });
+
+  public readonly xpNext = computed(() =>
+    this.state.xpForCurrentLevel() + this.state.xpForNextLevel()
   );
 
   public readonly focusAreas = computed(() => {

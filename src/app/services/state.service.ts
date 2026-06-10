@@ -13,6 +13,9 @@ export class StateService {
     completedQuizzes: {},
     completedChallenges: {},
     learnedConcepts: {},
+    xp: 0,
+    level: 1,
+    streak: { count: 0, lastDate: '' },
     history: { interviews: [], challenges: [] }
   });
 
@@ -21,6 +24,9 @@ export class StateService {
   public readonly history = computed(() => this._progress().history);
   public readonly readinessScore = computed(() => this._progress().readinessScore);
   public readonly learnedConcepts = computed(() => this._progress().learnedConcepts);
+  public readonly xp = computed(() => this._progress().xp);
+  public readonly level = computed(() => this._progress().level);
+  public readonly streak = computed(() => this._progress().streak);
 
   // Static decoupled arrays registries
   public readonly challenges: PlaygroundChallenge[] = challengesData;
@@ -58,6 +64,9 @@ export class StateService {
           completedQuizzes: compressed.completedQuizzes || {},
           completedChallenges: compressed.completedChallenges || {},
           learnedConcepts: compressed.learnedConcepts || {},
+          xp: compressed.xp || 0,
+          level: compressed.level || 1,
+          streak: compressed.streak || { count: 0, lastDate: '' },
           history: {
             interviews: hydratedInterviews,
             challenges: compressed.history?.challenges || []
@@ -73,6 +82,9 @@ export class StateService {
         try {
           const parsed = JSON.parse(legacy);
           parsed.learnedConcepts = parsed.learnedConcepts || {};
+          parsed.xp = parsed.xp || 0;
+          parsed.level = parsed.level || 1;
+          parsed.streak = parsed.streak || { count: 0, lastDate: '' };
           this._progress.set(parsed);
           localStorage.removeItem('angular_grill_me_progress'); // Clear legacy format
         } catch (e) {}
@@ -100,6 +112,9 @@ export class StateService {
         completedQuizzes: current.completedQuizzes,
         completedChallenges: current.completedChallenges,
         learnedConcepts: current.learnedConcepts,
+        xp: current.xp,
+        level: current.level,
+        streak: current.streak,
         history: {
           interviews: compressedInterviews,
           challenges: current.history.challenges
@@ -179,11 +194,23 @@ export class StateService {
 
   // FEAT-001: learning progress (intentionally separate from readiness scoring)
   public markConceptLearned(conceptId: string): void {
-    this._progress.update(prev =>
-      prev.learnedConcepts[conceptId]
-        ? prev
-        : { ...prev, learnedConcepts: { ...prev.learnedConcepts, [conceptId]: Date.now() } }
-    );
+    this._progress.update(prev => {
+      if (prev.learnedConcepts[conceptId]) return prev;
+      const today = new Date().toISOString().slice(0, 10);
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      const last = prev.streak.lastDate;
+      const newCount = last === today ? prev.streak.count
+        : last === yesterday ? prev.streak.count + 1
+        : 1;
+      const newXp = prev.xp + 50;
+      return {
+        ...prev,
+        learnedConcepts: { ...prev.learnedConcepts, [conceptId]: Date.now() },
+        xp: newXp,
+        level: this.xpToLevel(newXp),
+        streak: { count: newCount, lastDate: today }
+      };
+    });
   }
 
   public unmarkConceptLearned(conceptId: string): void {
@@ -207,12 +234,53 @@ export class StateService {
     return !!this._progress().learnedConcepts[conceptId];
   }
 
+  public awardXp(amount: number): void {
+    this._progress.update(prev => {
+      const newXp = prev.xp + amount;
+      return { ...prev, xp: newXp, level: this.xpToLevel(newXp) };
+    });
+  }
+
+  private xpToLevel(xp: number): number {
+    // Each level needs 20% more XP than the previous: 200, 240, 288 …
+    let level = 1;
+    let threshold = 200;
+    let total = 0;
+    while (total + threshold <= xp) {
+      total += threshold;
+      level++;
+      threshold = Math.round(threshold * 1.2);
+    }
+    return level;
+  }
+
+  public xpForCurrentLevel(): number {
+    let threshold = 200;
+    let total = 0;
+    for (let l = 1; l < this._progress().level; l++) {
+      total += threshold;
+      threshold = Math.round(threshold * 1.2);
+    }
+    return total;
+  }
+
+  public xpForNextLevel(): number {
+    let threshold = 200;
+    for (let l = 1; l < this._progress().level; l++) {
+      threshold = Math.round(threshold * 1.2);
+    }
+    return threshold;
+  }
+
   public resetProgress(): void {
     const cleared: UserProgress = {
       readinessScore: 0,
       completedQuizzes: {},
       completedChallenges: {},
       learnedConcepts: {},
+      xp: 0,
+      level: 1,
+      streak: { count: 0, lastDate: '' },
       history: { interviews: [], challenges: [] }
     };
     this._progress.set(cleared);

@@ -117,6 +117,9 @@ export interface UserProgress {
   completedQuizzes: Record<string, number>; // topic -> best score %
   completedChallenges: Record<string, boolean>; // challengeId -> isPassed
   learnedConcepts: Record<string, number>; // FEAT-001: conceptId -> timestamp marked learned (does not affect readiness)
+  xp: number;
+  level: number;
+  streak: { count: number; lastDate: string }; // lastDate: YYYY-MM-DD
   history: {
     interviews: InterviewSession[];
     challenges: ChallengeAttempt[];
